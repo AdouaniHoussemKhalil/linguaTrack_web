@@ -1,4 +1,5 @@
 import axios from "axios";
+import { clearSession, getToken } from "./session";
 
 const api = axios.create({
   // L'API FastAPI tourne sur le port 8000 en local (voir CLAUDE.md)
@@ -13,7 +14,7 @@ const api = axios.create({
 // Ajoute le token d'authentification
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -27,8 +28,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && window.location.pathname !== "/login") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
+      clearSession();
       window.location.href = "/login";
     }
     return Promise.reject(error);

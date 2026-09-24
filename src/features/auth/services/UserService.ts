@@ -1,4 +1,5 @@
 import api from "@/lib/axios";
+import { clearSession, saveSession } from "@/lib/session";
 import type { LoginModel, LoginResult, RegisterForm } from "../types/User";
 
 export const UserService = {
@@ -7,8 +8,7 @@ export const UserService = {
     const data = response.data;
     
     if (data.access_token) {
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("userId", data.user_id);
+      saveSession(data.access_token, data.user_id);
     }
     
     return data;
@@ -18,15 +18,13 @@ export const UserService = {
     const data = response.data;
     
     if (data.access_token) {
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("userId", data.user_id);
+      saveSession(data.access_token, data.user_id);
     }
     
     return data;
   },
   logout: () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
+    clearSession();
   }
 };
 

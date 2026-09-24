@@ -4,11 +4,12 @@ import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from "@quicka
 import { routes } from "@/app/routes/routes";
 import { ScoreRing } from "@/components/ScoreRing";
 import { getModeLabel } from "@/features/texts";
+import { getUserId } from "@/lib/session";
 import { formatDateTime, truncateWords } from "@/utils/format";
 import type { RecentText } from "../types/Stats";
 
 export const LastTextCard = ({ text }: { text: RecentText }) => {
-  const userId = localStorage.getItem("userId");
+  const userId = getUserId();
   const detailPath = text.id && userId ? `${routes.correction}/${text.id}/${userId}` : routes.correction;
   const errorCount = text.errors?.length ?? 0;
 
