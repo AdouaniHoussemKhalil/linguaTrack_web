@@ -1,245 +1,69 @@
-import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router";
-import { style, classes } from "typestyle";
-import { colors } from "../common/Colors";
-import { ScrollBar } from "../ui/ScrollBar";
+import React from "react";
+import type { IconType } from "react-icons";
+import { MdHistory, MdOutlineDashboard, MdOutlineEdit } from "react-icons/md";
+import { useLocation, useNavigate } from "react-router";
+import {
+  Sidebar as ShellSidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarNavItem,
+} from "@quickadui/shell";
+import { routes } from "@/app/routes/routes";
 
-interface SidebarItemProps {
+interface NavItem {
   to: string;
   label: string;
-  icon: string;
-  current: string;
+  icon: IconType;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({
-  to,
-  label,
-  icon,
-  current,
-}) => {
-  const isActive = current === to;
-
-  return (
-    <Link
-      to={to}
-      className={classes(sidebarItemStyle, isActive && activeItemStyle)}
-    >
-      <span className="material-symbols-outlined">{icon}</span>
-
-      <span>{label}</span>
-    </Link>
-  );
-};
+const navItems: NavItem[] = [
+  { to: routes.dashboard, label: "Tableau de bord", icon: MdOutlineDashboard },
+  { to: routes.correction, label: "Correction", icon: MdOutlineEdit },
+  { to: routes.history, label: "Historique", icon: MdHistory },
+];
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleResize = () => {
-      setCollapsed(window.innerWidth < 900);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // SidebarNavItem rend un <a> natif : on garde le href (ouverture dans un
+  // nouvel onglet) mais on navigue côté client pour un clic simple.
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>, to: string) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    navigate(to);
+  };
 
   return (
-    <aside className={classes(sidebarStyle, collapsed && collapsedStyle, "ScrollBar")}>
-      <div className={topBarStyle}>
-        <button
-          aria-label={collapsed ? "Ouvrir le menu" : "Fermer le menu"}
-          className={toggleButtonStyle}
-          onClick={() => setCollapsed((s) => !s)}
-        >
-          <span className="material-symbols-outlined">{collapsed ? "menu" : "chevron_left"}</span>
-        </button>
-      </div>
+    <ShellSidebar aria-label="Navigation principale">
+      <SidebarContent className="p-3">
+        <SidebarGroup className="gap-1">
+          <SidebarGroupLabel>Menu</SidebarGroupLabel>
 
-      {/* TOP */}
-      <div className={topSectionStyle}>
-        <div className={sectionTitleStyle}>MENU</div>
+          {navItems.map(({ to, label, icon: Icon }) => {
+            const isActive = location.pathname === to || location.pathname.startsWith(`${to}/`);
 
-        <SidebarItem
-          to="/dashboard"
-          label="Tableau de bord"
-          icon="dashboard"
-          current={location.pathname}
-        />
-
-        <SidebarItem
-          to="/correction"
-          label="Correction"
-          icon="edit"
-          current={location.pathname}
-        />
-
-        <SidebarItem
-          to="/history"
-          label="Historique"
-          icon="History"
-          current={location.pathname}
-        />
-      </div>
-
-      {/* <div className={bottomSectionStyle}>
-        <Link to="/preferences" className={sidebarItemStyle}>
-          <span className="material-symbols-outlined">tune</span>
-
-          <span>Préférences</span>
-        </Link>
-      </div> */}
-    </aside>
+            return (
+              <SidebarNavItem
+                key={to}
+                href={to}
+                title={label}
+                active={isActive}
+                aria-current={isActive ? "page" : undefined}
+                icon={<Icon size={20} aria-hidden className="shrink-0" />}
+                onClick={(event) => handleClick(event, to)}
+              >
+                {label}
+              </SidebarNavItem>
+            );
+          })}
+        </SidebarGroup>
+      </SidebarContent>
+    </ShellSidebar>
   );
 };
 
 export default Sidebar;
-
-/* =========================
-   SIDEBAR
-========================= */
-
-const sidebarStyle = style({
-  width: "260px",
-
-  backgroundColor: colors.white,
-
-  borderRight: `1px solid ${colors.mywhite}`,
-
-  padding: "20px 14px",
-
-
-  display: "flex",
-  flexDirection: "column",
-
-  boxSizing: "border-box",
-});
-
-/* =========================
-   TOP
-========================= */
-
-const topSectionStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "6px",
-});
-
-/* =========================
-   BOTTOM
-========================= */
-
-// const bottomSectionStyle = style({
-//   marginTop: "auto",
-
-//   paddingTop: "20px",
-
-//   borderTop: `1px solid ${colors.mywhite}`,
-// });
-
-/* =========================
-   SECTION TITLE
-========================= */
-
-const sectionTitleStyle = style({
-  padding: "0 12px",
-
-  marginBottom: "10px",
-
-  fontSize: "11px",
-
-  fontWeight: 700,
-
-  letterSpacing: "1.5px",
-
-  color: "#9ca3af",
-
-  textTransform: "uppercase",
-});
-
-/* =========================
-   ITEM
-========================= */
-
-const sidebarItemStyle = style({
-  display: "flex",
-  alignItems: "center",
-
-  gap: "12px",
-
-  padding: "12px 14px",
-
-  borderRadius: "12px",
-
-  textDecoration: "none",
-
-  color: colors.mygray,
-
-  fontSize: "14px",
-
-  fontWeight: 500,
-
-  transition: "all .2s ease",
-
-  $nest: {
-    "&:hover": {
-      backgroundColor: colors.mywhite,
-      color: colors.primary,
-    },
-
-    "& .material-symbols-outlined": {
-      fontSize: "20px",
-    },
-  },
-});
-
-/* =========================
-   ACTIVE
-========================= */
-const activeItemStyle = style({
-  backgroundColor: "#eff6ff",
-  color: colors.primary,
-  borderLeft: `4px solid ${colors.primary}`,
-  paddingLeft: "10px",
-});
-
-const collapsedStyle = style({
-  width: "72px",
-  padding: "12px 8px",
-  $nest: {
-    "& a": {
-      justifyContent: "center",
-      padding: "10px",
-    },
-    "& a span:last-child": {
-      display: "none",
-    },
-    "& .material-symbols-outlined": {
-      fontSize: "22px",
-    },
-  },
-});
-
-const topBarStyle = style({
-  display: "flex",
-  justifyContent: "flex-end",
-  marginBottom: "8px",
-});
-
-const toggleButtonStyle = style({
-  background: "transparent",
-  border: "none",
-  cursor: "pointer",
-  padding: "6px",
-  borderRadius: "8px",
-  $nest: {
-    "&:hover": {
-      backgroundColor: colors.mywhite,
-    },
-    "& .material-symbols-outlined": {
-      verticalAlign: "middle",
-      fontSize: "20px",
-    },
-  },
-});
