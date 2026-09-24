@@ -17,8 +17,7 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {/* Thème clair forcé tant que les pages typestyle utilisent des couleurs fixes */}
-    <ThemeProvider defaultTheme="light">
+    <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <App />
       </QueryClientProvider>

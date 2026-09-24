@@ -19,6 +19,7 @@ import {
   useSidebar,
 } from "@quickadui/shell";
 import { routes } from "@/app/routes/routes";
+import ThemeModeToggle from "./ThemeModeToggle";
 
 const navLinks = [
   { to: "/contact", label: "Contactez-nous" },
@@ -71,8 +72,10 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebarTrigger, onLogout }) => {
       </NavbarContent>
 
       <NavbarActions className="gap-3">
+        <ThemeModeToggle />
+
         {isLoginPage ? (
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="text-neutral-1">
             <Link to={routes.register}>Créer un compte</Link>
           </Button>
         ) : isRegisterPage ? (
@@ -81,7 +84,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebarTrigger, onLogout }) => {
           </Button>
         ) : (
           <>
-            <Button size="sm">Upgrade</Button>
+            <Button size="sm" className="text-neutral-1">Upgrade</Button>
 
             {onLogout && (
               <DropdownMenu>
