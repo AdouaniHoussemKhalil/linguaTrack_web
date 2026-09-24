@@ -1,7 +1,8 @@
-import type { AnalyseTextResult } from "@/features/texts/types/text";
+import type { AnalyseTextResult } from "@/features/texts";
+import type { Period } from "@/utils/period";
 
 export type HistoryItemDto = AnalyseTextResult;
 
 export type GetHistoryRequest = {
-  period?: "all" | "day" | "week" | "month" | "year";
+  period?: Period;
 };

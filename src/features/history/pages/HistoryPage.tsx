@@ -1,79 +1,87 @@
-import { useEffect, useState } from "react";
-import { style } from "typestyle";
+import { Link, useSearchParams } from "react-router";
+import { Alert, AlertDescription, AlertTitle, Button, Skeleton } from "@quickadui/core";
+import { routes } from "@/app/routes/routes";
+import { EmptyState } from "@/components/EmptyState";
+import { ListPagination } from "@/components/ListPagination";
+import { PageHeader } from "@/components/PageHeader";
+import { PeriodTabs } from "@/components/PeriodTabs";
 import { useHistory } from "@/features/history/hooks/useHistory";
-import HistoryItemComponent from "@/features/history/components/HistoryItemComponent";
-import { colors } from "@/components/common/Colors";
+import { parsePeriod, type Period } from "@/utils/period";
+import { HistoryTable } from "../components/HistoryTable";
 
-type Period = "all" | "day" | "week" | "month" | "year";
-
-const periods: { value: Period; label: string }[] = [
-  { value: "all", label: "Tous" },
-  { value: "day", label: "Aujourd'hui" },
-  { value: "week", label: "Cette semaine" },
-  { value: "month", label: "Ce mois" },
-  { value: "year", label: "Cette année" },
-];
+const PAGE_SIZE = 10;
 
 const HistoryPage = () => {
-  const [period, setPeriod] = useState<Period>("all");
-  const { data, isFetching: isLoading, error } = useHistory({period});
+  // Période et page dans l'URL : elles survivent au rechargement et au retour arrière.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const period = parsePeriod(searchParams.get("period"));
+  const requestedPage = Number(searchParams.get("page")) || 1;
 
+  const { data = [], isLoading, error, refetch } = useHistory({ period });
 
+  const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+  const page = Math.min(Math.max(requestedPage, 1), totalPages);
+  const pageItems = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
+  const updateParams = (next: { period?: Period; page?: number }) => {
+    const params = new URLSearchParams(searchParams);
+    if (next.period !== undefined) {
+      if (next.period === "all") params.delete("period");
+      else params.set("period", next.period);
+      params.delete("page");
+    }
+    if (next.page !== undefined) {
+      if (next.page <= 1) params.delete("page");
+      else params.set("page", String(next.page));
+    }
+    setSearchParams(params);
+  };
 
   return (
-    <div className={pageStyle}>
-      <div className={headerStyle}>
-        <h1>Historique d'analyse</h1>
-        <p>Consultez tous vos textes analysés et leurs corrections.</p>
-      </div>
+    <div className="py-6">
+      <PageHeader
+        title="Historique"
+        description="Retrouvez tous vos textes analysés et leurs corrections."
+        actions={<PeriodTabs value={period} onChange={(next) => updateParams({ period: next })} />}
+      />
 
-      <div className={filtersStyle}>
-        <label className={labelStyle}>Filtrer par période</label>
-        <div className={filterButtonsStyle}>
-          {periods.map((p) => (
-            <button
-              key={p.value}
-              className={`${filterButtonStyle} ${period === p.value ? selectedButtonStyle : ""}`}
-              onClick={() => setPeriod(p.value)}
-            >
-              {p.label}
-            </button>
+      {isLoading ? (
+        <div className="flex flex-col gap-2" aria-busy aria-label="Chargement de l'historique">
+          {Array.from({ length: 6 }, (_, index) => (
+            <Skeleton key={index} className="h-14 w-full" />
           ))}
         </div>
-      </div>
-
-      {isLoading && (
-        <div className={loadingStyle}>
-          <span className="material-symbols-outlined">hourglass_empty</span>
-          <p>Chargement de l'historique...</p>
-        </div>
-      )}
-
-      {error && (
-        <div className={errorStyle}>
-          <span className="material-symbols-outlined">error</span>
-          <p>Erreur lors du chargement de l'historique.</p>
-        </div>
-      )}
-
-      {!isLoading && !error && data && data?.length === 0 && (
-        <div className={emptyStyle}>
-          <span className="material-symbols-outlined">folder_open</span>
-          <p>Aucun texte analysé pour cette période.</p>
-        </div>
-      )}
-
-      {!isLoading && data && (
-        <div className={listStyle}>
-           <div className={countStyle}>
-            {data?.length} texte{data?.length > 1 ? "s" : ""} trouvé{data?.length > 1 ? "s" : ""}
-          </div>
-          <div className={itemsContainerStyle}>
-            {data?.map((item) => (
-                <HistoryItemComponent key={item.id} item={item} />
-            ))}
-          </div>
+      ) : error ? (
+        <Alert variant="danger">
+          <AlertTitle>Impossible de charger l'historique</AlertTitle>
+          <AlertDescription className="flex flex-col items-start gap-3">
+            Vérifiez votre connexion puis réessayez.
+            <Button size="sm" variant="outline" onClick={() => refetch()}>
+              Réessayer
+            </Button>
+          </AlertDescription>
+        </Alert>
+      ) : data.length === 0 ? (
+        <EmptyState
+          title={period === "all" ? "Aucun texte analysé" : "Aucun texte sur cette période"}
+          description={
+            period === "all"
+              ? "Vos analyses apparaîtront ici dès votre premier texte corrigé."
+              : "Essayez une période plus large."
+          }
+          action={
+            <Button asChild>
+              <Link to={routes.correction}>Analyser un texte</Link>
+            </Button>
+          }
+        />
+      ) : (
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-neutral-11">
+            {data.length} texte{data.length > 1 ? "s" : ""}
+          </p>
+          <HistoryTable items={pageItems} />
+          <ListPagination page={page} totalPages={totalPages} onPageChange={(next) => updateParams({ page: next })} />
         </div>
       )}
     </div>
@@ -81,137 +89,3 @@ const HistoryPage = () => {
 };
 
 export default HistoryPage;
-
-const pageStyle = style({
-  padding: "20px 0",
-});
-
-const headerStyle = style({
-  marginBottom: "28px",
-  $nest: {
-    h1: {
-      fontSize: "28px",
-      margin: 0,
-      marginBottom: "8px",
-    },
-    p: {
-      margin: 0,
-      color: colors.gray,
-      fontSize: "14px",
-    },
-  },
-});
-
-const filtersStyle = style({
-  marginBottom: "28px",
-  padding: "16px",
-  borderRadius: "12px",
-  backgroundColor: colors.surfaceMuted,
-  border: `1px solid ${colors.mywhite}`,
-});
-
-const labelStyle = style({
-  display: "block",
-  fontSize: "14px",
-  fontWeight: 600,
-  marginBottom: "12px",
-  color: colors.primary,
-});
-
-const filterButtonsStyle = style({
-  display: "flex",
-  gap: "8px",
-  flexWrap: "wrap",
-});
-
-const filterButtonStyle = style({
-  padding: "8px 16px",
-  borderRadius: "8px",
-  border: `1px solid ${colors.mywhite}`,
-  backgroundColor: colors.white,
-  fontSize: "13px",
-  fontWeight: 500,
-  cursor: "pointer",
-  transition: "all 0.2s ease",
-  color: colors.mygray,
-  $nest: {
-    "&:hover": {
-      backgroundColor: colors.primary,
-      color: colors.white
-    },
-  },
-});
-
-const selectedButtonStyle = style({
-  backgroundColor: colors.primary,
-  color: colors.white,
-  borderColor: colors.primary,
-  fontWeight: 600,
-});
-
-const loadingStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "12px",
-  padding: "60px 20px",
-  color: colors.gray,
-  textAlign: "center",
-  $nest: {
-    "& .material-symbols-outlined": {
-      fontSize: "48px",
-    },
-  },
-});
-
-const errorStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "12px",
-  padding: "60px 20px",
-  color: colors.error,
-  textAlign: "center",
-  $nest: {
-    "& .material-symbols-outlined": {
-      fontSize: "48px",
-    },
-  },
-});
-
-const emptyStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "12px",
-  padding: "60px 20px",
-  color: colors.gray,
-  textAlign: "center",
-  $nest: {
-    "& .material-symbols-outlined": {
-      fontSize: "48px",
-    },
-  },
-});
-
-const listStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "16px",
-});
-
-const countStyle = style({
-  fontSize: "14px",
-  fontWeight: 600,
-  color: colors.gray,
-  paddingBottom: "8px",
-});
-
-const itemsContainerStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "10px",
-});
