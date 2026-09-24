@@ -1,6 +1,4 @@
-import { colors } from "@/components/common/Colors";
 import Navbar from "@/components/header/Navbar";
-import { style } from "typestyle";
 
 interface Props {
   children: React.ReactNode;
@@ -8,32 +6,11 @@ interface Props {
 
 const PublicLayout = ({ children }: Props) => {
   return (
-    <div className={layoutStyle}>
+    <div className="flex min-h-screen flex-col bg-neutral-2">
       <Navbar />
-
-      <div className={bodyStyle}>
-        <main className={contentStyle}>{children}</main>
-      </div>
+      <main className="flex-1 px-4 py-8 md:px-12">{children}</main>
     </div>
   );
 };
 
 export default PublicLayout;
-
-const layoutStyle = style({
-  fontFamily: '"Inter", "Helvetica Neue", Arial, sans-serif',
-  display: "flex",
-  flexDirection: "column",
-  minHeight: "100vh",
-});
-
-const bodyStyle = style({
-  display: "flex",
-  flex: 1,
-});
-
-const contentStyle = style({
-  flex: 1,
-  padding: "50px",
-  backgroundColor: colors.mywhite,
-});

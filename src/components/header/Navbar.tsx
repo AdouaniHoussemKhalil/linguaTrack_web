@@ -75,7 +75,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebarTrigger, onLogout }) => {
         <ThemeModeToggle />
 
         {isLoginPage ? (
-          <Button asChild size="sm" className="text-neutral-1">
+          <Button asChild size="sm">
             <Link to={routes.register}>Créer un compte</Link>
           </Button>
         ) : isRegisterPage ? (
@@ -84,7 +84,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebarTrigger, onLogout }) => {
           </Button>
         ) : (
           <>
-            <Button size="sm" className="text-neutral-1">Upgrade</Button>
+            <Button size="sm">Upgrade</Button>
 
             {onLogout && (
               <DropdownMenu>

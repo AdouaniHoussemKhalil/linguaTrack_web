@@ -10,7 +10,7 @@ interface Props {
 
 const AuthLayout: React.FC<Props> = ({ children }) => {
   return (
-    <div data-qa-scope className="flex min-h-screen items-center justify-center bg-neutral-2 p-3 sm:p-5">
+    <div className="flex min-h-screen items-center justify-center bg-neutral-2 p-3 sm:p-5">
       <div className="flex w-full max-w-[1400px] flex-col-reverse gap-3 md:h-[90vh] md:flex-row md:gap-5">
         <section className="flex w-full flex-col overflow-y-auto rounded-xl border border-neutral-6 bg-neutral-1 shadow-sm md:w-[400px] md:shrink-0 lg:w-[480px]">
           <header className="flex items-center justify-between gap-4 px-6 pt-6 sm:px-8">
