@@ -12,10 +12,10 @@ const PrivateLayout = ({ children }: Props) => {
     <div className={layoutStyle}>
       <Navbar />
 
-      <div className={bodyStyle}>
+      <div className={`${bodyStyle} {ScrollBar}`}>
         <Sidebar />
 
-        <main className={contentStyle}>{children}</main>
+        <main className={`${contentStyle} {ScrollBar}`}>{children}</main>
       </div>
     </div>
   );
@@ -37,6 +37,7 @@ const bodyStyle = style({
 
 const contentStyle = style({
   flex: 1,
-  padding: "50px",
+  paddingInline: "40px",
+  paddingBlock: "5px",
   backgroundColor: colors.mywhite,
 });

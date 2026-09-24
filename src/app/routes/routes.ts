@@ -3,4 +3,6 @@ export const routes = {
   login: "/login",
   register: "/register",
   dashboard: "/dashboard",
+  correction: "/correction",
+  history: "/history",
 };
