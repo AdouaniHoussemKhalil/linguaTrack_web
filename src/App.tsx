@@ -6,11 +6,15 @@ import ProtectedRoute from "./app/routes/ProtectedRoute";
 import PrivateLayout from "./app/layouts/PrivateLayout";
 import AuthLayout from "./app/layouts/AuthLayout";
 import Dashboard from "./features/dashboard/pages/Dashboard";
+import TextsPage from "./features/texts/pages/Texts";
+import HistoryPage from "./features/history/pages/HistoryPage";
 import { routes } from "./app/routes/routes";
+import LoadingOverlay from "./components/ui/LoadingOverlay";
 
 function App() {
   return (
     <BrowserRouter>
+      <LoadingOverlay />
       <Routes>
         {/* AUTH */}
         <Route
@@ -47,6 +51,9 @@ function App() {
           }
         >
           <Route path={routes.dashboard} element={<Dashboard />} />
+          <Route path={routes.history} element={<HistoryPage />} />
+          <Route path={routes.correction} element={<TextsPage />} />
+          <Route path={`${routes.correction}/:id/:userId`} element={<TextsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -6,4 +6,7 @@ export const colors = {
     secondary: '#333',
     error:'#e53935',
     gray:'#777',
+    blue:'#1e88e5',
+    yellow: '#e6b800',
+    green: '#AFE1AF'
 }

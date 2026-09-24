@@ -27,7 +27,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Redirection vers login
-    //   window.location.href = "/applications";
+    window.location.href = "/login";
     }
     return Promise.reject(error);
   }

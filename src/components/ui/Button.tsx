@@ -4,12 +4,15 @@ import { colors } from "../common/Colors";
 
 interface ButtonProps {
   text: string;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "outlined";
   size?: "small" | "medium" | "large";
   onClick?: () => void;
+  icon?: string;
   disabled?: boolean;
   isLoading?: boolean;
   marginTop?: string;
+  noBorder?: boolean;
+  noUppercase?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -18,14 +21,17 @@ export const Button: React.FC<ButtonProps> = ({
   size = "medium",
   onClick,
   disabled = false,
+  icon,
   isLoading = false,
   marginTop,
+  noBorder = false,
+  noUppercase = false,
 }) => {
   return (
     <button
       onClick={onClick}
       disabled={disabled || isLoading}
-      className={classes(baseButton, variants[variant], sizes[size], marginTop ? style({ marginTop }) : null)}
+      className={classes(baseButton, variants[variant], sizes[size], marginTop ? style({ marginTop }) : null, noBorder ? style({ border: "none" }) : null)}
     >
       {
         isLoading ? (
@@ -33,7 +39,14 @@ export const Button: React.FC<ButtonProps> = ({
             <div className={spinner} />
           </div>
         ) : (
-          text.toUpperCase()
+          icon ? (
+            <div className={classes(loadingContainer, noUppercase ? null : style({ textTransform: "uppercase" }))}>
+              <span className="material-symbols-outlined">{icon}</span>
+              {noUppercase ? text : text.toUpperCase()}
+            </div>
+          ) : (
+            noUppercase ? text : text.toUpperCase()
+          )
         )
       }
     </button>
@@ -45,7 +58,7 @@ const baseButton = style({
   border: "none",
   borderRadius: "6px",
   cursor: "pointer",
-  fontWeight: 500,
+  fontWeight: "600",
   transition: "all 0.2s ease",
   $nest: {
     "&:hover": {
@@ -67,6 +80,11 @@ const variants = {
   secondary: style({
     backgroundColor: colors.mywhite,
     color: colors.secondary,
+  }),
+
+  outlined: style({
+    backgroundColor: colors.white,
+    color: colors.primary,
   }),
 };
 

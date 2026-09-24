@@ -8,6 +8,7 @@ export const UserService = {
     
     if (data.access_token) {
       localStorage.setItem("token", data.access_token);
+      localStorage.setItem("userId", data.user_id);
     }
     
     return data;

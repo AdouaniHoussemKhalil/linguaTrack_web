@@ -9,6 +9,7 @@ export type LoginModel = {
 };
 
 export type LoginResult = {
+  user_id: string;
   access_token?: string;
   is_success: boolean;
   error?: string;
