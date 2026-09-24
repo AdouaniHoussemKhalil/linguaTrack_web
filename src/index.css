@@ -1,3 +1,51 @@
+/*
+ * Tailwind sans preflight : les pages existantes (typestyle) utilisent des
+ * balises brutes (h1, p, ul…) dont le rendu changerait avec le reset global.
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "@quickadui/theme/tokens.css";
+@import "@quickadui/theme/tailwind-theme.css";
+
+@source "../node_modules/@quickadui/primitives";
+@source "../node_modules/@quickadui/core";
+@source "../node_modules/@quickadui/shell";
+
+/*
+ * @quickadui/theme 0.1.0 génère des échelles claires trop sombres
+ * (neutral-2 = #C9C9CA, neutral-6 = #626469) et un accent orange par défaut.
+ * On impose ici une échelle de gris standard et l'accent noir de l'app
+ * (colors.primary). Mode clair uniquement : l'app n'a pas de mode sombre.
+ */
+:root {
+  --qa-color-neutral-1: #fcfcfc;
+  --qa-color-neutral-2: #f6f6f6;
+  --qa-color-neutral-3: #f0f0f0;
+  --qa-color-neutral-4: #e8e8e8;
+  --qa-color-neutral-5: #e0e0e0;
+  --qa-color-neutral-6: #e5e7eb;
+  --qa-color-neutral-7: #cecece;
+  --qa-color-neutral-8: #bbbbbb;
+  --qa-color-neutral-9: #8d8d8d;
+  --qa-color-neutral-10: #838383;
+  --qa-color-neutral-11: #555555;
+  --qa-color-neutral-12: #1a1a1a;
+
+  --qa-color-accent-1: #fcfcfc;
+  --qa-color-accent-2: #f6f6f6;
+  --qa-color-accent-3: #efefef;
+  --qa-color-accent-4: #e6e6e6;
+  --qa-color-accent-5: #dcdcdc;
+  --qa-color-accent-6: #d0d0d0;
+  --qa-color-accent-7: #b8b8b8;
+  --qa-color-accent-8: #8f8f8f;
+  --qa-color-accent-9: #1a1a1a;
+  --qa-color-accent-10: #333333;
+  --qa-color-accent-11: #1a1a1a;
+  --qa-color-accent-12: #111111;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -7,10 +55,25 @@ html, body, #root {
   margin: 0;
   padding: 0;
 }
-/* body::-webkit-scrollbar {
-  width: 10px;
+
+body {
+  @apply bg-neutral-1 text-neutral-12;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
 }
-body::-webkit-scrollbar-thumb {
-  background-color: "red";
-  border-radius: 8px;
-} */
+
+/* Reset minimal limité à la coque QuickadUI (remplace le preflight). */
+@layer base {
+  :where([data-slot="navbar"], [data-slot="sidebar"]) :where(a) {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  :where([data-slot="navbar"], [data-slot="sidebar"]) :where(button) {
+    margin: 0;
+    border: 0 solid;
+    background-color: transparent;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+}

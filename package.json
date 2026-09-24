@@ -11,6 +11,10 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
+    "@quickadui/core": "^0.1.0",
+    "@quickadui/icons": "^0.2.0",
+    "@quickadui/shell": "^0.1.1",
+    "@quickadui/theme": "^0.1.0",
     "@tanstack/react-query": "^5.90.21",
     "axios": "^1.13.5",
     "react": "^19.2.0",
@@ -28,6 +32,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tailwindcss/postcss": "^4.2.0",
+    "@tailwindcss/vite": "^4.2.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

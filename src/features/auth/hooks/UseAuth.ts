@@ -37,3 +37,14 @@ export const useRegister = () => {
     },
   });
 }
+
+export const useSignOut = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return () => {
+    UserService.logout();
+    queryClient.clear();
+    navigate(routes.login, { replace: true });
+  };
+};

@@ -22,6 +22,10 @@ export const UserService = {
     }
     
     return data;
+  },
+  logout: () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
   }
 };
 
