@@ -11,8 +11,8 @@ interface Props {
 const AuthLayout: React.FC<Props> = ({ children }) => {
   return (
     <div data-qa-scope className="flex min-h-screen items-center justify-center bg-neutral-2 p-3 sm:p-5">
-      <div className="flex w-full max-w-[1400px] gap-5 lg:h-[90vh]">
-        <section className="flex w-full flex-col overflow-y-auto rounded-xl border border-neutral-6 bg-neutral-1 shadow-sm lg:w-[480px] lg:shrink-0">
+      <div className="flex w-full max-w-[1400px] flex-col-reverse gap-3 md:h-[90vh] md:flex-row md:gap-5">
+        <section className="flex w-full flex-col overflow-y-auto rounded-xl border border-neutral-6 bg-neutral-1 shadow-sm md:w-[400px] md:shrink-0 lg:w-[480px]">
           <header className="flex items-center justify-between gap-4 px-6 pt-6 sm:px-8">
             <Link to={routes.login} aria-label="LinguaTrack - Connexion">
               <img src="/linguatrack-logo.svg" alt="LinguaTrack" className="block size-10 object-contain" />
@@ -25,11 +25,12 @@ const AuthLayout: React.FC<Props> = ({ children }) => {
           </div>
         </section>
 
-        <div className="hidden flex-1 items-center justify-center overflow-hidden rounded-xl bg-(--lt-frame) shadow-sm lg:flex">
+        {/* Bandeau compact sur mobile, panneau à côté du formulaire à partir de md */}
+        <div className="flex h-40 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-(--lt-frame) p-2 shadow-sm sm:h-56 md:h-auto md:flex-1 md:p-0">
           <img
             src={signInImg}
             alt=""
-            className="h-[95%] w-[95%] rounded-tl-[100px] rounded-tr-[10px] rounded-br-[100px] rounded-bl-[10px] object-cover"
+            className="h-full w-full rounded-tl-[40px] rounded-tr-[8px] rounded-br-[40px] rounded-bl-[8px] object-cover md:h-[95%] md:object-[70%_50%] lg:object-center md:w-[95%] md:rounded-tl-[100px] md:rounded-tr-[10px] md:rounded-br-[100px] md:rounded-bl-[10px]"
           />
         </div>
       </div>
