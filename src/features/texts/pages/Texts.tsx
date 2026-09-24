@@ -1,116 +1,109 @@
-import { colors } from "@/components/common/Colors";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { Button } from "@/components/ui/Button";
-import { Field } from "@/components/ui/Field";
-import { style } from "typestyle";
-import { useTexts } from "@/features/texts/hooks/useTexts";
+import { useState } from "react";
+import { Link, useLocation, useParams } from "react-router";
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardContent, CardHeader, Skeleton } from "@quickadui/core";
+import { toast } from "@quickadui/overlays";
+import { PlusIcon } from "@quickadui/icons";
+import { routes } from "@/app/routes/routes";
+import { EmptyState } from "@/components/EmptyState";
+import { PageHeader } from "@/components/PageHeader";
+import { getErrorMessage } from "@/lib/errors";
 import { useTextById } from "@/features/texts/hooks/useTextById";
-import TextResult from "@/features/texts/components/TextResult";
-import type { AnalyseTextResult, TextMode } from "@/features/texts/types/text";
+import { useTexts } from "@/features/texts/hooks/useTexts";
+import { AnalyzeForm } from "../components/AnalyzeForm";
+import TextResult from "../components/TextResult";
+import type { AnalyzeFormSchema } from "../schemas";
 
-const modes: { value: TextMode; label: string }[] = [
-  { value: "correction", label: "Correction" },
-  { value: "professional", label: "Professionnel" },
-  { value: "simple", label: "Simple" },
-  { value: "natural", label: "Naturel" },
-  { value: "persuasive", label: "Persuasif" },
-];
+const ResultSkeleton = () => (
+  <Card aria-busy>
+    <CardHeader className="flex flex-row items-start justify-between gap-4">
+      <div className="flex flex-1 flex-col gap-3">
+        <Skeleton className="h-5 w-48" />
+        <Skeleton className="h-4 w-32" />
+      </div>
+      <Skeleton className="size-24 rounded-full" />
+    </CardHeader>
+    <CardContent className="flex flex-col gap-3">
+      <Skeleton className="h-28 w-full" />
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-10 w-full" />
+    </CardContent>
+  </Card>
+);
 
 const TextsPage = () => {
-  const [text, setText] = useState("");
-  const [mode, setMode] = useState<TextMode>("correction");
-  const [formError, setFormError] = useState<string | null>(null);
   const { id, userId } = useParams<{ id?: string; userId?: string }>();
-  const { data: loadedResult, error: textError } = useTextById(id, userId);
-  const { mutate, isPending: isLoading, data, error } = useTexts();
+  const location = useLocation();
+  const { data: loadedResult, isLoading: isLoadingText, error: loadError } = useTextById(id, userId);
+  const { mutate: analyze, isPending, data: analyzedResult } = useTexts();
 
-  useEffect(() => {
-    if (error) {
-      setFormError(error.message || "Une erreur est survenue");
-    }
-  }, [error]);
+  // Un résultat d'analyse ne vaut que pour la navigation où il a été demandé :
+  // en ouvrant un autre texte, « Nouveau texte » ou la Sidebar, on repart du texte chargé.
+  const [analyzedAt, setAnalyzedAt] = useState<string | null>(null);
+  const result = analyzedResult && analyzedAt === location.key ? analyzedResult : loadedResult;
 
-  useEffect(() => {
-    if (textError) {
-      setFormError(textError.message || "Impossible de récupérer le texte demandé.");
-      return;
-    }
-
-    if (loadedResult) {
-      setText(loadedResult.original_text);
-      setMode(loadedResult.mode ?? "correction");
-      setFormError(null);
-    }
-
-    if (!id) {
-      setText("");
-      setMode("correction");
-      setFormError(null);
-    }
-  }, [id, loadedResult, textError]);
-
-  const handleSubmit = () => {
-    if (!text.trim()) {
-      setFormError("Veuillez saisir un texte à analyser.");
-      return;
-    }
-
-    setFormError(null);
-    mutate({ text, mode });
+  const handleSubmit = (values: AnalyzeFormSchema) => {
+    setAnalyzedAt(location.key);
+    analyze(values, {
+      onError: (error) => {
+        toast({
+          variant: "danger",
+          title: "L'analyse a échoué",
+          description: getErrorMessage(error),
+        });
+      },
+    });
   };
 
-  const result: AnalyseTextResult | undefined = data ?? loadedResult;
-
   return (
-    <div className={pageStyle}>
-      <div className={headerStyle}>
-        <h1>Analyse de texte</h1>
-        <p>Entrez votre texte ci-dessous puis lancez l'analyse pour obtenir la correction.</p>
-      </div>
+    <div className="py-6">
+      <PageHeader
+        title="Analyse de texte"
+        description="Saisissez votre texte et choisissez un mode : LinguaTrack le corrige et explique chaque erreur."
+        actions={
+          id && (
+            <Button asChild variant="outline">
+              <Link to={routes.correction}>
+                <PlusIcon size={16} aria-hidden />
+                Nouveau texte
+              </Link>
+            </Button>
+          )
+        }
+      />
 
-      <div className={layoutStyle}>
-        <section className={formCardStyle}>
-          <div className={sectionHeaderStyle}>Texte à analyser</div>
+      {loadError && (
+        <Alert variant="danger" className="mb-6">
+          <AlertTitle>Texte introuvable</AlertTitle>
+          <AlertDescription>Impossible de récupérer ce texte. Il a peut-être été supprimé.</AlertDescription>
+        </Alert>
+      )}
 
-          <Field label="Mode de traitement">
-            <select className={selectStyle} value={mode} onChange={(e) => setMode(e.target.value as TextMode)}>
-              {modes.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-
-          <Field label="Texte original">
-            <textarea
-              className={textareaStyle}
-              rows={10}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Collez ici votre texte à corriger..."
-            />
-          </Field>
-
-          {formError && <div className={errorStyle}>{formError}</div>}
-
-          <Button
-            text="Analyser"
-            size="large"
-            isLoading={isLoading}
-            onClick={handleSubmit}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+        {isLoadingText ? (
+          <Skeleton className="h-[480px] w-full rounded-xl" />
+        ) : (
+          <AnalyzeForm
+            // Formulaire remis à zéro à chaque navigation (autre texte, « Nouveau texte »…)
+            key={location.key}
+            defaultValues={{
+              text: loadedResult?.original_text ?? "",
+              mode: loadedResult?.mode ?? "correction",
+            }}
+            isPending={isPending}
+            onSubmit={handleSubmit}
           />
-        </section>
+        )}
 
-        <section className={previewStyle}>
-          {result ? (
+        <section aria-live="polite" aria-label="Résultat">
+          {isPending || isLoadingText ? (
+            <ResultSkeleton />
+          ) : result ? (
             <TextResult result={result} />
           ) : (
-            <div className={emptyStateStyle}>
-              <span className="material-symbols-outlined">description</span>
-              <p>Aucun résultat pour le moment. Lancez l'analyse ou chargez un texte existant.</p>
-            </div>
+            <EmptyState
+              title="Aucun résultat pour le moment"
+              description="Lancez une analyse, ou ouvrez un texte depuis l'historique pour revoir sa correction."
+            />
           )}
         </section>
       </div>
@@ -119,100 +112,3 @@ const TextsPage = () => {
 };
 
 export default TextsPage;
-
-const pageStyle = style({
-  padding: "20px 0",
-});
-
-const headerStyle = style({
-  marginBottom: "24px",
-  $nest: {
-    h1: {
-      fontSize: "28px",
-      margin: 0,
-    },
-    p: {
-      margin: "8px 0 0",
-      color: colors.textMuted,
-    },
-  },
-});
-
-const layoutStyle = style({
-  display: "grid",
-  gridTemplateColumns: "1fr 1.2fr",
-  gap: "24px",
-  alignItems: "start",
-  $nest: {
-    "@media (max-width: 900px)": {
-      gridTemplateColumns: "1fr",
-    },
-  },
-});
-
-const formCardStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "18px",
-  padding: "24px",
-  borderRadius: "16px",
-  backgroundColor: colors.white,
-  boxShadow: "0 8px 24px rgba(0,0,0,0.04)",
-});
-
-const sectionHeaderStyle = style({
-  fontSize: "18px",
-  fontWeight: 700,
-  marginBottom: "4px",
-  color: colors.primary,
-});
-
-const textareaStyle = style({
-  minHeight: "220px",
-  width: "100%",
-  resize: "vertical",
-  padding: "14px",
-  borderRadius: "12px",
-  border: `1px solid ${colors.borderStrong}`,
-  fontSize: "14px",
-  fontFamily: "inherit",
-  lineHeight: 1.6,
-});
-
-const selectStyle = style({
-  padding: "10px 12px",
-  borderRadius: "8px",
-  border: `1px solid ${colors.borderStrong}`,
-  fontSize: "14px",
-  width: "100%",
-});
-
-const previewStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "18px",
-});
-
-const emptyStateStyle = style({
-  minHeight: "360px",
-  borderRadius: "16px",
-  border: `1px dashed ${colors.borderStrong}`,
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "12px",
-  padding: "40px",
-  color: colors.textMuted,
-  textAlign: "center",
-  $nest: {
-    "& .material-symbols-outlined": {
-      fontSize: "48px",
-    },
-  },
-});
-
-const errorStyle = style({
-  color: colors.dangerText,
-  fontWeight: 600,
-});
