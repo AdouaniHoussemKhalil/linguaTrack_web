@@ -1,15 +1,16 @@
 import axios from "axios";
 
 const api = axios.create({
-//   baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
-  timeout: 10000,
+  // L'API FastAPI tourne sur le port 8000 en local (voir CLAUDE.md)
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+  // L'analyse d'un texte appelle le LLM (Mistral) : 10 s ne suffisaient pas
+  timeout: 60_000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Intercepteur pour ajouter le token d'authentification
+// Ajoute le token d'authentification
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -21,13 +22,14 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Intercepteur pour gérer les erreurs
+// Session expirée : on nettoie le stockage et on renvoie vers la connexion
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Redirection vers login
-    window.location.href = "/login";
+    if (error.response?.status === 401 && window.location.pathname !== "/login") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
