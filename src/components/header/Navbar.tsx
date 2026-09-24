@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
   const isLoginPage = location.pathname === routes.login;
   const isRegisterPage = location.pathname === routes.register;
 
-  const logo = "/logo.svg";
+  const logo = "/linguatrack-logo.svg";
 
   return (
     <header className={navbarStyle}>

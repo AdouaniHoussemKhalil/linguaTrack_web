@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="LinguaTrack">
+  <defs>
+    <linearGradient id="lt-tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#333"/>
+      <stop offset="1" stop-color="#1a1a1a"/>
+    </linearGradient>
+    <linearGradient id="lt-check" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1e88e5"/>
+      <stop offset="1" stop-color="#4fb3ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Tile -->
+  <rect width="64" height="64" rx="16" fill="url(#lt-tile)"/>
+
+  <!-- Speech bubble -->
+  <path d="M18 14h22a10 10 0 0 1 10 10v12a10 10 0 0 1-10 10H27l-8 7v-7.3A10 10 0 0 1 8 36V24a10 10 0 0 1 10-10z"
+        fill="#fff"/>
+
+  <!-- Check rising into a progress arrow -->
+  <path d="M17 31l6 6 17-17" fill="none" stroke="url(#lt-check)" stroke-width="5"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M31 20h9v9" fill="none" stroke="#4fb3ff" stroke-width="4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Accent dot -->
+  <circle cx="52" cy="12" r="4" fill="#e6b800"/>
+</svg>
