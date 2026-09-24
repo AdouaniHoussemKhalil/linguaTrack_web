@@ -124,8 +124,8 @@ const spin = keyframes({
 const spinner = style({
   width: "16px",
   height: "16px",
-  border: "2px solid rgba(255,255,255,0.4)",
-  borderTop: "2px solid white",
+  border: `2px solid color-mix(in srgb, ${colors.white} 40%, transparent)`,
+  borderTop: `2px solid ${colors.white}`,
   borderRadius: "50%",
   animationName: spin,
   animationDuration: "0.8s",

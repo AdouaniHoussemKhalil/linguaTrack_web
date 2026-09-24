@@ -216,10 +216,10 @@ const errorsContainerStyle = style({
 });
 
 const accordionItemStyle = style({
-  border: `1px solid #E5E7EB`,
+  border: `1px solid ${colors.border}`,
   borderRadius: "10px",
   overflow: "hidden",
-  backgroundColor: "#fff",
+  backgroundColor: colors.white,
   boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
 });
 
@@ -229,11 +229,11 @@ const accordionHeaderStyle = style({
   gap: "12px",
   padding: "16px",
   cursor: "pointer",
-  backgroundColor: "#F9FAFB",
+  backgroundColor: colors.surfaceMuted,
 
   $nest: {
     "&:hover": {
-      backgroundColor: "#F3F4F6",
+      backgroundColor: colors.surfaceHover,
     },
   },
 });
@@ -264,7 +264,7 @@ const accordionContentStyle = style({
   display: "flex",
   flexDirection: "column",
   gap: "18px",
-  backgroundColor: "#fff",
+  backgroundColor: colors.white,
 });
 
 const errorDetailStyle = style({
@@ -283,24 +283,24 @@ const errorLabelStyle = style({
 const errorFragmentStyle = style({
   padding: "12px",
   borderRadius: "8px",
-  backgroundColor: "#FFF5F5",
-  border: "1px solid #FECACA",
+  backgroundColor: colors.dangerBg,
+  border: `1px solid ${colors.dangerBorder}`,
   fontFamily: "monospace",
 });
 
 const correctedFragmentStyle = style({
   padding: "12px",
   borderRadius: "8px",
-  backgroundColor: "#ECFDF5",
-  border: "1px solid #A7F3D0",
+  backgroundColor: colors.successBg,
+  border: `1px solid ${colors.successBorder}`,
   fontFamily: "monospace",
 });
 
 const explanationStyle = style({
   padding: "12px",
   borderRadius: "8px",
-  backgroundColor: "#F9FAFB",
-  border: "1px solid #E5E7EB",
+  backgroundColor: colors.surfaceMuted,
+  border: `1px solid ${colors.border}`,
   lineHeight: 1.6,
   color: colors.mygray,
 });

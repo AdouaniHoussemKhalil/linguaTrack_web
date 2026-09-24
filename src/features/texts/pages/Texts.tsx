@@ -1,3 +1,4 @@
+import { colors } from "@/components/common/Colors";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Button } from "@/components/ui/Button";
@@ -132,7 +133,7 @@ const headerStyle = style({
     },
     p: {
       margin: "8px 0 0",
-      color: "#6b7280",
+      color: colors.textMuted,
     },
   },
 });
@@ -155,7 +156,7 @@ const formCardStyle = style({
   gap: "18px",
   padding: "24px",
   borderRadius: "16px",
-  backgroundColor: "#fff",
+  backgroundColor: colors.white,
   boxShadow: "0 8px 24px rgba(0,0,0,0.04)",
 });
 
@@ -163,7 +164,7 @@ const sectionHeaderStyle = style({
   fontSize: "18px",
   fontWeight: 700,
   marginBottom: "4px",
-  color: "#111827",
+  color: colors.primary,
 });
 
 const textareaStyle = style({
@@ -172,7 +173,7 @@ const textareaStyle = style({
   resize: "vertical",
   padding: "14px",
   borderRadius: "12px",
-  border: `1px solid #d1d5db`,
+  border: `1px solid ${colors.borderStrong}`,
   fontSize: "14px",
   fontFamily: "inherit",
   lineHeight: 1.6,
@@ -181,7 +182,7 @@ const textareaStyle = style({
 const selectStyle = style({
   padding: "10px 12px",
   borderRadius: "8px",
-  border: `1px solid #d1d5db`,
+  border: `1px solid ${colors.borderStrong}`,
   fontSize: "14px",
   width: "100%",
 });
@@ -195,14 +196,14 @@ const previewStyle = style({
 const emptyStateStyle = style({
   minHeight: "360px",
   borderRadius: "16px",
-  border: `1px dashed #d1d5db`,
+  border: `1px dashed ${colors.borderStrong}`,
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
   gap: "12px",
   padding: "40px",
-  color: "#6b7280",
+  color: colors.textMuted,
   textAlign: "center",
   $nest: {
     "& .material-symbols-outlined": {
@@ -212,6 +213,6 @@ const emptyStateStyle = style({
 });
 
 const errorStyle = style({
-  color: "#b91c1c",
+  color: colors.dangerText,
   fontWeight: 600,
 });

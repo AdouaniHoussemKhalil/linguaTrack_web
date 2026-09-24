@@ -114,7 +114,7 @@ const imageCardStyle = style({
   flex: 7,
   height: "100%",
 
-  backgroundColor: colors.primary,
+  backgroundColor: colors.frame,
 
   borderRadius: "10px",
 

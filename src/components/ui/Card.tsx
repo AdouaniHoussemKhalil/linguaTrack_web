@@ -1,8 +1,9 @@
+import { colors } from "@/components/common/Colors";
 import React from "react";
 import { style, classes } from "typestyle";
 
 const cardStyle = style({
-  backgroundColor: "white",
+  backgroundColor: colors.white,
   borderRadius: "8px",
   boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
   padding: "20px",
