@@ -1,27 +1,35 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/Button";
-import { style } from "typestyle";
-import { Field, inputStyle } from "@/components/ui/Field";
-import { colors } from "@/components/common/Colors";
-import { useRegister } from "../hooks/UseAuth";
+import { Link } from "react-router";
+import { Alert, AlertDescription, Button, Spinner } from "@quickadui/core";
 import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+  PasswordInput,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@quickadui/forms";
+import { routes } from "@/app/routes/routes";
+import { useRegister } from "../hooks/UseAuth";
+import PasswordStrength from "../components/PasswordStrength";
+import {
+  languageLevels,
+  passwordRules,
   registerSchema,
   type RegisterFormSchema,
 } from "../schemas/registerSchema";
-import type { RegisterForm } from "../types/User";
-import PasswordChecklist from "react-password-checklist";
-import { Link } from "react-router";
-import { routes } from "@/app/routes/routes";
 
 export default function RegisterPage() {
-  const {
-    register: registerField,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<RegisterFormSchema>({
+  const form = useForm<RegisterFormSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       firstName: "",
@@ -33,306 +41,198 @@ export default function RegisterPage() {
     },
   });
 
-  const { mutate: registerUser, isPending } = useRegister();
+  const password = useWatch({ control: form.control, name: "password" });
   const [error, setError] = useState<string | null>(null);
-  const passwordValue = watch("password");
+  const { mutate: registerUser, isPending } = useRegister();
 
-  const [showPasswordChecklist, setShowPasswordChecklist] = useState(false);
-
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = form.handleSubmit(({ firstName, lastName, email, level, password }) => {
     setError(null);
 
-    const { confirmPassword, ...payload } = data;
-
-    registerUser(payload as RegisterForm, {
-      onSuccess: (result) => {
-        if (!result.is_success) {
-          setError(result.error || "Une erreur est survenue lors de la création du compte");
-        }
+    registerUser(
+      { firstName, lastName, email, level, password },
+      {
+        onSuccess: (result) => {
+          if (!result.is_success) {
+            setError(result.error || "Une erreur est survenue lors de la création du compte");
+          }
+        },
+        onError: () => {
+          setError("Une erreur est survenue lors de la création du compte");
+        },
       },
-      onError: () => {
-        setError("Une erreur est survenue lors de la création du compte");
-      },
-    });
+    );
   });
 
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <h1 className={titleStyle}>Créer un compte</h1>
-        <div className={topRightLinkStyle}>
-          <Link to={routes.login} className={linkStyle}>
-            {"Se connecter"}
-          </Link>
-        </div>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold text-neutral-12">Créer un compte</h1>
+        <p className="text-sm text-neutral-11">Rejoignez la communauté LinguaTrack dès aujourd'hui !</p>
       </div>
-      <p className={paragraphStyle}>
-        Rejoignez la communauté Linguatrack dès aujourd'hui!
-      </p>
 
-      <div className={formStyle}>
-        <div className={rowStyle}>
-          <Field label="Nom">
-            <input
-              {...registerField("firstName")}
-              className={inputStyle}
-              placeholder="Votre nom"
-            />
-            {errors.firstName && (
-              <div className={errorStyle}>{errors.firstName.message}</div>
-            )}
-          </Field>
-
-          <Field label="Prénom">
-            <input
-              {...registerField("lastName")}
-              className={inputStyle}
-              placeholder="Votre prénom"
-            />
-            {errors.lastName && (
-              <div className={errorStyle}>{errors.lastName.message}</div>
-            )}
-          </Field>
-        </div>
-
-        <Field label="Address email">
-          <input
-            {...registerField("email")}
-            type="email"
-            className={inputStyle}
-            placeholder="Votre email"
-          />
-          {errors.email && (
-            <div className={errorStyle}>{errors.email.message}</div>
-          )}
-        </Field>
-
-        <Field label="Niveau de langue française">
-          <select {...registerField("level")} className={selectStyle}>
-            <option value="A1">A1 - Débutant</option>
-            <option value="A2">A2 - Élémentaire</option>
-            <option value="B1">B1 - Intermédiaire</option>
-            <option value="B2">B2 - Haut Intermédiaire</option>
-            <option value="C1">C1 - Advanced</option>
-            <option value="C2">C2 - Fluent</option>
-          </select>
-        </Field>
-
-        <div className={rowStyle}>
-          <Field label="Mot de passe">
-            <div className={passwordWrapperStyle}>
-              <input
-                {...registerField("password")}
-                type="password"
-                className={inputStyle}
-                placeholder="Mot de passe"
-                onFocus={() => setShowPasswordChecklist(true)}
-                onClick={() => setShowPasswordChecklist(true)}
-                onBlur={() => {
-                  setTimeout(() => setShowPasswordChecklist(false), 200);
-                }}
-              />
-
-              {showPasswordChecklist && passwordValue && (
-                <div className={pwdChecklistContainerStyle}>
-                  <PasswordChecklist
-                    rules={[
-                      "minLength",
-                      "specialChar",
-                      "number",
-                      "capital",
-                      "match",
-                    ]}
-                    minLength={8}
-                    value={passwordValue}
-                    valueAgain={watch("confirmPassword")}
-                    messages={{
-                      minLength: "Au moins 8 caractères",
-                      specialChar: "Au moins un caractère spécial",
-                      number: "Au moins un chiffre",
-                      capital: "Au moins une majuscule",
-                      match: "Les mots de passe correspondent",
-                    }}
-                  />
-                </div>
+      <Form {...form}>
+        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Prénom</FormLabel>
+                  <FormControl>
+                    <Input
+                      autoComplete="given-name"
+                      placeholder="Votre prénom"
+                      state={fieldState.invalid ? "error" : "default"}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-
-            {errors.password && (
-              <div className={errorStyle}>{errors.password.message}</div>
-            )}
-          </Field>
-
-          <Field label="Confirmation du mot de passe">
-            <input
-              {...registerField("confirmPassword")}
-              type="password"
-              className={inputStyle}
-              placeholder="Confirmer le mot de passe"
-              onFocus={() => setShowPasswordChecklist(true)}
-              onClick={() => setShowPasswordChecklist(true)}
-              onBlur={() => {
-                setTimeout(() => setShowPasswordChecklist(false), 200);
-              }}
             />
-            {errors.confirmPassword && (
-              <div className={errorStyle}>{errors.confirmPassword.message}</div>
+
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Nom</FormLabel>
+                  <FormControl>
+                    <Input
+                      autoComplete="family-name"
+                      placeholder="Votre nom"
+                      state={fieldState.invalid ? "error" : "default"}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel>Adresse email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="vous@exemple.com"
+                    state={fieldState.invalid ? "error" : "default"}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </Field>
-        </div>
+          />
 
-        {error && <div className={errorStyle}>{error}</div>}
+          <FormField
+            control={form.control}
+            name="level"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Niveau de français</FormLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger ref={field.ref} onBlur={field.onBlur}>
+                      <SelectValue placeholder="Choisissez votre niveau" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {languageLevels.map((level) => (
+                      <SelectItem key={level.value} value={level.value}>
+                        {level.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button
-          size="large"
-          text={"Valider la création"}
-          isLoading={isPending}
-          onClick={onSubmit}
-          marginTop="50px"
-          disabled={
-            isPending ||
-            errors.firstName ||
-            errors.lastName ||
-            errors.email ||
-            errors.password ||
-            errors.confirmPassword
-              ? true
-              : false
-          }
-        />
-        <p className={termsStyle}>
-          En cliquant sur <strong>'Valider la création'</strong>, vous acceptez
-          nos{" "}
-          <a href="/terms" className={linkStyle}>
-            Conditions d'utilisation
-          </a>{" "}
-          et{" "}
-          <a href="/privacy" className={linkStyle}>
-            Politique de confidentialité
-          </a>
-          .
-        </p>
-      </div>
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel>Mot de passe</FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    autoComplete="new-password"
+                    placeholder="Choisissez un mot de passe"
+                    state={fieldState.invalid ? "error" : "default"}
+                    {...field}
+                  />
+                </FormControl>
+                {password && <PasswordStrength value={password} rules={passwordRules} />}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel>Confirmation du mot de passe</FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    autoComplete="new-password"
+                    placeholder="Saisissez-le à nouveau"
+                    state={fieldState.invalid ? "error" : "default"}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {error && (
+            <Alert variant="danger">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <Button type="submit" size="lg" disabled={isPending} className="mt-2 w-full text-neutral-1">
+            {isPending ? (
+              <>
+                <Spinner size="sm" label="Création du compte en cours" />
+                Création du compte…
+              </>
+            ) : (
+              "Créer mon compte"
+            )}
+          </Button>
+
+          <p className="text-center text-xs text-neutral-11">
+            En créant un compte, vous acceptez nos{" "}
+            <a href="/terms" className="font-medium text-neutral-12 underline-offset-4 hover:underline">
+              Conditions d'utilisation
+            </a>{" "}
+            et notre{" "}
+            <a href="/privacy" className="font-medium text-neutral-12 underline-offset-4 hover:underline">
+              Politique de confidentialité
+            </a>
+            .
+          </p>
+        </form>
+      </Form>
+
+      <p className="text-center text-sm text-neutral-11">
+        Vous avez déjà un compte ?{" "}
+        <Link to={routes.login} className="font-medium text-neutral-12 underline-offset-4 hover:underline">
+          Se connecter
+        </Link>
+      </p>
     </div>
   );
 }
-
-const titleStyle = style({
-  fontWeight: 700,
-  fontSize: "24px",
-  marginBottom: "6px",
-});
-
-const paragraphStyle = style({
-  fontSize: "14px",
-  color: colors.gray,
-});
-
-const formStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "18px",
-});
-
-const rowStyle = style({
-  display: "flex",
-  gap: "15px",
-});
-
-const topRightLinkStyle = style({
-  fontSize: "14px",
-  marginTop: "15px",
-});
-
-const selectStyle = style({
-  padding: "10px 12px",
-  borderRadius: "8px",
-  backgroundColor: colors.mywhite,
-  border: "1px solid transparent",
-  fontSize: "14px",
-  cursor: "pointer",
-  appearance: "none",
-
-  $nest: {
-    "&:focus": {
-      outline: "none",
-      border: `1px solid ${colors.primary}`,
-      backgroundColor: colors.white,
-    },
-  },
-});
-
-const errorStyle = style({
-  color: colors.error,
-  fontSize: "13px",
-});
-
-const termsStyle = style({
-  fontSize: "12px",
-  color: colors.gray,
-  textAlign: "center",
-  marginTop: "10px",
-  lineHeight: "1.4",
-});
-
-const linkStyle = style({
-  color: colors.primary,
-  textDecoration: "none",
-  fontWeight: 600,
-
-  $nest: {
-    "&:hover": {
-      textDecoration: "underline",
-    },
-  },
-});
-
-const passwordWrapperStyle = style({
-  position: "relative",
-});
-
-const pwdChecklistContainerStyle = style({
-  position: "absolute",
-
-  bottom: "calc(100% + 23px)",
-  left: 80,
-
-  width: "320px",
-
-  padding: "12px",
-
-  backgroundColor: colors.white,
-
-  borderRadius: "12px",
-
-  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-
-  border: `1px solid ${colors.border}`,
-
-  zIndex: 1000,
-
-  $nest: {
-    "&::after": {
-      content: '""',
-
-      position: "absolute",
-
-      bottom: "-12px",
-
-      left: "10px",
-
-      width: 0,
-      height: 0,
-
-      borderLeft: "10px solid transparent",
-      borderRight: "10px solid transparent",
-      borderTop: `10px solid ${colors.primary}`,
-    },
-  },
-});

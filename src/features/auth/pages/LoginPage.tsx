@@ -1,31 +1,36 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { style } from "typestyle";
-import { Field, inputStyle } from "@/components/ui/Field";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
-import { colors } from "@/components/common/Colors";
+import { Alert, AlertDescription, Button, Spinner } from "@quickadui/core";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+  PasswordInput,
+} from "@quickadui/forms";
+import { routes } from "@/app/routes/routes";
 import { useSignIn } from "@/features/auth/hooks/UseAuth";
+import { loginSchema, type LoginFormSchema } from "../schemas/loginSchema";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const form = useForm<LoginFormSchema>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
 
+  const [error, setError] = useState<string | null>(null);
   const { mutate: signIn, isPending } = useSignIn();
 
-  const handleSubmit = () => {
-    if (!email || !password) {
-      setError("Tous les champs sont requis");
-      return;
-    }
-
+  const onSubmit = form.handleSubmit(({ email, password }) => {
     setError(null);
 
     signIn(
-      {
-        username: email,
-        password,
-      },
+      { username: email, password },
       {
         onSuccess: (result) => {
           if (!result.is_success) {
@@ -37,84 +42,81 @@ export default function LoginPage() {
         },
       },
     );
-  };
+  });
 
   return (
-    <div>
-      <h1 className={titleStyle}>Se connecter</h1>
-      <div className={formStyle}>
-        <Field label="Address email">
-          <input
-            className={inputStyle}
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Votre adresse email"
-          />
-        </Field>
-
-        <Field label="Password">
-          <input
-            className={inputStyle}
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Votre mot de passe"
-          />
-        </Field>
-
-        {error && <div className={errorStyle}>{error}</div>}
-
-        <Button
-          size="large"
-          text={"Se connecter"}
-          isLoading={isPending}
-          disabled={isPending}
-          onClick={handleSubmit}
-        />
-
-        <p className={linkTextStyle}>
-          Vous n'avez pas de compte?{" "}
-          <Link to="/register" className={linkStyle}>
-            S'inscrire ici
-          </Link>
-        </p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold text-neutral-12">Se connecter</h1>
+        <p className="text-sm text-neutral-11">Heureux de vous revoir sur LinguaTrack.</p>
       </div>
+
+      <Form {...form}>
+        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel>Adresse email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="vous@exemple.com"
+                    state={fieldState.invalid ? "error" : "default"}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel>Mot de passe</FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    autoComplete="current-password"
+                    placeholder="Votre mot de passe"
+                    state={fieldState.invalid ? "error" : "default"}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {error && (
+            <Alert variant="danger">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <Button type="submit" size="lg" disabled={isPending} className="mt-2 w-full text-neutral-1">
+            {isPending ? (
+              <>
+                <Spinner size="sm" label="Connexion en cours" />
+                Connexion…
+              </>
+            ) : (
+              "Se connecter"
+            )}
+          </Button>
+        </form>
+      </Form>
+
+      <p className="text-center text-sm text-neutral-11">
+        Vous n'avez pas de compte ?{" "}
+        <Link to={routes.register} className="font-medium text-neutral-12 underline-offset-4 hover:underline">
+          Créer un compte
+        </Link>
+      </p>
     </div>
   );
 }
-
-const titleStyle = style({
-  fontSize: "24px",
-  fontWeight: 700,
-  marginBottom: "20px",
-});
-
-const formStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "15px",
-});
-
-const errorStyle = style({
-  color: colors.error,
-  fontSize: "13px",
-});
-
-const linkTextStyle = style({
-  fontSize: "12px",
-  color: colors.gray,
-  marginTop: "10px",
-  textAlign: "center",
-});
-
-const linkStyle = style({
-  color: colors.primary,
-  textDecoration: "none",
-  fontWeight: 500,
-  $nest: {
-    "&:hover": {
-      textDecoration: "underline",
-    },
-  },
-});

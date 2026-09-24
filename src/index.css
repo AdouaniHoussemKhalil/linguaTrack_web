@@ -7,10 +7,12 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "@quickadui/theme/tokens.css";
 @import "@quickadui/theme/tailwind-theme.css";
+@import "./styles/status-colors.css";
 
 @source "../node_modules/@quickadui/primitives";
 @source "../node_modules/@quickadui/core";
 @source "../node_modules/@quickadui/shell";
+@source "../node_modules/@quickadui/forms";
 
 /*
  * Couleurs du thème. Deux familles de variables :
@@ -194,19 +196,34 @@ body {
   font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Reset minimal limité à la coque QuickadUI (remplace le preflight). */
+/*
+ * Reset minimal (remplace le preflight) limité aux zones construites avec
+ * QuickadUI : la coque (navbar / sidebar) et tout conteneur [data-qa-scope].
+ */
 @layer base {
-  :where([data-slot="navbar"], [data-slot="sidebar"]) :where(a) {
+  :where([data-slot="navbar"], [data-slot="sidebar"], [data-qa-scope]) :where(a) {
     color: inherit;
     text-decoration: none;
   }
 
-  :where([data-slot="navbar"], [data-slot="sidebar"]) :where(button) {
+  :where([data-slot="navbar"], [data-slot="sidebar"], [data-qa-scope]) :where(button, input, select, textarea) {
     margin: 0;
-    border: 0 solid;
-    background-color: transparent;
     font: inherit;
     color: inherit;
+  }
+
+  :where([data-slot="navbar"], [data-slot="sidebar"], [data-qa-scope]) :where(button) {
+    border: 0 solid;
+    background-color: transparent;
     cursor: pointer;
+  }
+
+  :where([data-qa-scope]) :where(h1, h2, h3, p, ul) {
+    margin: 0;
+  }
+
+  :where([data-qa-scope]) :where(ul) {
+    padding: 0;
+    list-style: none;
   }
 }

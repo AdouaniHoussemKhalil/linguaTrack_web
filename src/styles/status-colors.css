@@ -1,0 +1,130 @@
+/*
+ * Échelles d'état (danger / success / warning) de @quickadui/theme 0.2.0 :
+ * comme neutral et accent, elles sont ternes en clair (danger-3 = #D4BFBB).
+ * Remplacées par des échelles type Radix (red / green / amber).
+ * Mêmes sélecteurs que tokens.css, importé avant ce fichier.
+ */
+:root {
+  --qa-color-danger-1: #fffcfc;
+  --qa-color-danger-2: #fff7f7;
+  --qa-color-danger-3: #feebec;
+  --qa-color-danger-4: #ffdbdc;
+  --qa-color-danger-5: #ffcdce;
+  --qa-color-danger-6: #fdbdbe;
+  --qa-color-danger-7: #f4a9aa;
+  --qa-color-danger-8: #eb8e90;
+  --qa-color-danger-9: #e5484d;
+  --qa-color-danger-10: #dc3e42;
+  --qa-color-danger-11: #ce2c31;
+  --qa-color-danger-12: #641723;
+
+  --qa-color-success-1: #fbfefc;
+  --qa-color-success-2: #f4fbf6;
+  --qa-color-success-3: #e6f6eb;
+  --qa-color-success-4: #d6f1df;
+  --qa-color-success-5: #c4e8d1;
+  --qa-color-success-6: #adddc0;
+  --qa-color-success-7: #8eceaa;
+  --qa-color-success-8: #5bb98b;
+  --qa-color-success-9: #30a46c;
+  --qa-color-success-10: #2b9a66;
+  --qa-color-success-11: #218358;
+  --qa-color-success-12: #193b2d;
+
+  --qa-color-warning-1: #fefdfb;
+  --qa-color-warning-2: #fefbe9;
+  --qa-color-warning-3: #fff7c2;
+  --qa-color-warning-4: #ffee9c;
+  --qa-color-warning-5: #fbe577;
+  --qa-color-warning-6: #f3d673;
+  --qa-color-warning-7: #e9c162;
+  --qa-color-warning-8: #e2a336;
+  --qa-color-warning-9: #ffc53d;
+  --qa-color-warning-10: #ffba18;
+  --qa-color-warning-11: #ab6400;
+  --qa-color-warning-12: #4f3422;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --qa-color-danger-1: #191111;
+    --qa-color-danger-2: #201314;
+    --qa-color-danger-3: #3b1219;
+    --qa-color-danger-4: #500f1c;
+    --qa-color-danger-5: #611623;
+    --qa-color-danger-6: #72232d;
+    --qa-color-danger-7: #8c333a;
+    --qa-color-danger-8: #b54548;
+    --qa-color-danger-9: #e5484d;
+    --qa-color-danger-10: #ec5d5e;
+    --qa-color-danger-11: #ff9592;
+    --qa-color-danger-12: #ffd1d9;
+
+    --qa-color-success-1: #0e1512;
+    --qa-color-success-2: #121b17;
+    --qa-color-success-3: #132d21;
+    --qa-color-success-4: #113b29;
+    --qa-color-success-5: #174933;
+    --qa-color-success-6: #20573e;
+    --qa-color-success-7: #28684a;
+    --qa-color-success-8: #2f7c57;
+    --qa-color-success-9: #30a46c;
+    --qa-color-success-10: #33b074;
+    --qa-color-success-11: #3dd68c;
+    --qa-color-success-12: #b1f1cb;
+
+    --qa-color-warning-1: #16120c;
+    --qa-color-warning-2: #1d180f;
+    --qa-color-warning-3: #302008;
+    --qa-color-warning-4: #3f2700;
+    --qa-color-warning-5: #4d3000;
+    --qa-color-warning-6: #5c3d05;
+    --qa-color-warning-7: #714f19;
+    --qa-color-warning-8: #8f6424;
+    --qa-color-warning-9: #ffc53d;
+    --qa-color-warning-10: #ffd60a;
+    --qa-color-warning-11: #ffca16;
+    --qa-color-warning-12: #ffe7b3;
+  }
+}
+
+:root[data-theme="dark"] {
+  --qa-color-danger-1: #191111;
+  --qa-color-danger-2: #201314;
+  --qa-color-danger-3: #3b1219;
+  --qa-color-danger-4: #500f1c;
+  --qa-color-danger-5: #611623;
+  --qa-color-danger-6: #72232d;
+  --qa-color-danger-7: #8c333a;
+  --qa-color-danger-8: #b54548;
+  --qa-color-danger-9: #e5484d;
+  --qa-color-danger-10: #ec5d5e;
+  --qa-color-danger-11: #ff9592;
+  --qa-color-danger-12: #ffd1d9;
+
+  --qa-color-success-1: #0e1512;
+  --qa-color-success-2: #121b17;
+  --qa-color-success-3: #132d21;
+  --qa-color-success-4: #113b29;
+  --qa-color-success-5: #174933;
+  --qa-color-success-6: #20573e;
+  --qa-color-success-7: #28684a;
+  --qa-color-success-8: #2f7c57;
+  --qa-color-success-9: #30a46c;
+  --qa-color-success-10: #33b074;
+  --qa-color-success-11: #3dd68c;
+  --qa-color-success-12: #b1f1cb;
+
+  --qa-color-warning-1: #16120c;
+  --qa-color-warning-2: #1d180f;
+  --qa-color-warning-3: #302008;
+  --qa-color-warning-4: #3f2700;
+  --qa-color-warning-5: #4d3000;
+  --qa-color-warning-6: #5c3d05;
+  --qa-color-warning-7: #714f19;
+  --qa-color-warning-8: #8f6424;
+  --qa-color-warning-9: #ffc53d;
+  --qa-color-warning-10: #ffd60a;
+  --qa-color-warning-11: #ffca16;
+  --qa-color-warning-12: #ffe7b3;
+}
