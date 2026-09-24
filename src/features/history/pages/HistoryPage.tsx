@@ -106,7 +106,7 @@ const filtersStyle = style({
   marginBottom: "28px",
   padding: "16px",
   borderRadius: "12px",
-  backgroundColor: "#f9fafb",
+  backgroundColor: colors.surfaceMuted,
   border: `1px solid ${colors.mywhite}`,
 });
 
@@ -128,7 +128,7 @@ const filterButtonStyle = style({
   padding: "8px 16px",
   borderRadius: "8px",
   border: `1px solid ${colors.mywhite}`,
-  backgroundColor: "#fff",
+  backgroundColor: colors.white,
   fontSize: "13px",
   fontWeight: 500,
   cursor: "pointer",
@@ -144,7 +144,7 @@ const filterButtonStyle = style({
 
 const selectedButtonStyle = style({
   backgroundColor: colors.primary,
-  color: "#fff",
+  color: colors.white,
   borderColor: colors.primary,
   fontWeight: 600,
 });

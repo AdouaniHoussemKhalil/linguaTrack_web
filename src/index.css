@@ -13,13 +13,18 @@
 @source "../node_modules/@quickadui/shell";
 
 /*
- * @quickadui/theme 0.1.0 génère des échelles claires trop sombres
- * (neutral-2 = #C9C9CA, neutral-6 = #626469) et un accent orange par défaut.
- * On impose ici une échelle de gris standard et l'accent noir de l'app
- * (colors.primary). Mode clair uniquement : l'app n'a pas de mode sombre.
+ * Couleurs du thème. Deux familles de variables :
+ * - --qa-color-* : écrase les échelles de @quickadui/theme 0.1.0, dont le
+ *   mode clair est trop sombre (neutral-2 = #C9C9CA) et l'accent orange ;
+ * - --lt-*       : couleurs de l'app, lues par components/common/Colors.ts
+ *   pour que les styles typestyle suivent aussi le thème.
+ * Les sélecteurs sombres reprennent ceux de tokens.css (même spécificité,
+ * déclarés après) : data-theme="dark", ou préférence OS si mode « système ».
  */
 :root {
-  --qa-color-neutral-1: #fcfcfc;
+  color-scheme: light;
+
+  --qa-color-neutral-1: #ffffff;
   --qa-color-neutral-2: #f6f6f6;
   --qa-color-neutral-3: #f0f0f0;
   --qa-color-neutral-4: #e8e8e8;
@@ -44,6 +49,134 @@
   --qa-color-accent-10: #333333;
   --qa-color-accent-11: #1a1a1a;
   --qa-color-accent-12: #111111;
+
+  --lt-primary: #1a1a1a;
+  --lt-mywhite: #f6f6f6;
+  --lt-mygray: #555555;
+  --lt-white: #ffffff;
+  --lt-secondary: #333333;
+  --lt-error: #e53935;
+  --lt-gray: #777777;
+  --lt-blue: #1e88e5;
+  --lt-yellow: #e6b800;
+  --lt-green: #afe1af;
+  --lt-border: #e5e7eb;
+  --lt-border-strong: #d1d5db;
+  --lt-surface-muted: #f9fafb;
+  --lt-surface-hover: #f3f4f6;
+  --lt-text-muted: #6b7280;
+  --lt-danger-text: #b91c1c;
+  --lt-danger-bg: #fff5f5;
+  --lt-danger-border: #fecaca;
+  --lt-success-bg: #ecfdf5;
+  --lt-success-border: #a7f3d0;
+  --lt-frame: #1a1a1a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --qa-color-neutral-1: #1a1b1e;
+    --qa-color-neutral-2: #0f1012;
+    --qa-color-neutral-3: #26272b;
+    --qa-color-neutral-4: #2e3035;
+    --qa-color-neutral-5: #35373c;
+    --qa-color-neutral-6: #2e3035;
+    --qa-color-neutral-7: #3d4046;
+    --qa-color-neutral-8: #4b4e55;
+    --qa-color-neutral-9: #6b6e76;
+    --qa-color-neutral-10: #7e818a;
+    --qa-color-neutral-11: #b0b3b8;
+    --qa-color-neutral-12: #ececec;
+
+    --qa-color-accent-1: #1a1b1e;
+    --qa-color-accent-2: #1f2023;
+    --qa-color-accent-3: #2a2b2f;
+    --qa-color-accent-4: #323338;
+    --qa-color-accent-5: #3a3c41;
+    --qa-color-accent-6: #44464c;
+    --qa-color-accent-7: #55585f;
+    --qa-color-accent-8: #7e818a;
+    --qa-color-accent-9: #ececec;
+    --qa-color-accent-10: #d4d4d4;
+    --qa-color-accent-11: #ececec;
+    --qa-color-accent-12: #f5f5f5;
+
+    --lt-primary: #ececec;
+    --lt-mywhite: #0f1012;
+    --lt-mygray: #b0b3b8;
+    --lt-white: #1a1b1e;
+    --lt-secondary: #d4d4d4;
+    --lt-error: #ef5350;
+    --lt-gray: #9a9da3;
+    --lt-blue: #42a5f5;
+    --lt-yellow: #f2c94c;
+    --lt-green: #1d3b2a;
+    --lt-border: #2e3035;
+    --lt-border-strong: #3d4046;
+    --lt-surface-muted: #222327;
+    --lt-surface-hover: #2a2b2f;
+    --lt-text-muted: #9a9da3;
+    --lt-danger-text: #f87171;
+    --lt-danger-bg: #2a1515;
+    --lt-danger-border: #5c2626;
+    --lt-success-bg: #0f2a20;
+    --lt-success-border: #1f5c45;
+    --lt-frame: #26272b;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --qa-color-neutral-1: #1a1b1e;
+  --qa-color-neutral-2: #0f1012;
+  --qa-color-neutral-3: #26272b;
+  --qa-color-neutral-4: #2e3035;
+  --qa-color-neutral-5: #35373c;
+  --qa-color-neutral-6: #2e3035;
+  --qa-color-neutral-7: #3d4046;
+  --qa-color-neutral-8: #4b4e55;
+  --qa-color-neutral-9: #6b6e76;
+  --qa-color-neutral-10: #7e818a;
+  --qa-color-neutral-11: #b0b3b8;
+  --qa-color-neutral-12: #ececec;
+
+  --qa-color-accent-1: #1a1b1e;
+  --qa-color-accent-2: #1f2023;
+  --qa-color-accent-3: #2a2b2f;
+  --qa-color-accent-4: #323338;
+  --qa-color-accent-5: #3a3c41;
+  --qa-color-accent-6: #44464c;
+  --qa-color-accent-7: #55585f;
+  --qa-color-accent-8: #7e818a;
+  --qa-color-accent-9: #ececec;
+  --qa-color-accent-10: #d4d4d4;
+  --qa-color-accent-11: #ececec;
+  --qa-color-accent-12: #f5f5f5;
+
+  --lt-primary: #ececec;
+  --lt-mywhite: #0f1012;
+  --lt-mygray: #b0b3b8;
+  --lt-white: #1a1b1e;
+  --lt-secondary: #d4d4d4;
+  --lt-error: #ef5350;
+  --lt-gray: #9a9da3;
+  --lt-blue: #42a5f5;
+  --lt-yellow: #f2c94c;
+  --lt-green: #1d3b2a;
+  --lt-border: #2e3035;
+  --lt-border-strong: #3d4046;
+  --lt-surface-muted: #222327;
+  --lt-surface-hover: #2a2b2f;
+  --lt-text-muted: #9a9da3;
+  --lt-danger-text: #f87171;
+  --lt-danger-bg: #2a1515;
+  --lt-danger-border: #5c2626;
+  --lt-success-bg: #0f2a20;
+  --lt-success-border: #1f5c45;
+  --lt-frame: #26272b;
 }
 
 * {

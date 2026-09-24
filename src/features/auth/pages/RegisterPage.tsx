@@ -313,7 +313,7 @@ const pwdChecklistContainerStyle = style({
 
   boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
 
-  border: `1px solid #e5e7eb`,
+  border: `1px solid ${colors.border}`,
 
   zIndex: 1000,
 

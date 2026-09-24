@@ -87,7 +87,7 @@ const percentageStyle = style({
 const trackStyle = style({
   width: "100%",
 
-  backgroundColor: "#e5e7eb",
+  backgroundColor: colors.border,
 
   borderRadius: "999px",
 

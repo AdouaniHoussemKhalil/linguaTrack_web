@@ -74,7 +74,7 @@ const itemContainerStyle = style({
   padding: "16px",
   borderRadius: "12px",
   border: `1px solid ${colors.mywhite}`,
-  backgroundColor: "#fff",
+  backgroundColor: colors.white,
   transition: "all 0.2s ease",
   $nest: {
     "&:hover": {
