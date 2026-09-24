@@ -26,7 +26,7 @@ const PrivateLayout = ({ children }: Props) => {
 
   return (
     <DashboardLayout
-      className="bg-neutral-2 font-[Inter,'Helvetica_Neue',Arial,sans-serif]"
+      className="bg-neutral-2"
       navbar={<Navbar showSidebarTrigger onLogout={signOut} />}
       sidebar={<Sidebar />}
       sidebarCollapsed={collapsed}

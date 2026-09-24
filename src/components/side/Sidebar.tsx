@@ -52,6 +52,7 @@ const Sidebar: React.FC = () => {
                 href={to}
                 title={label}
                 active={isActive}
+                className={isActive ? "font-semibold" : undefined}
                 aria-current={isActive ? "page" : undefined}
                 icon={<Icon size={20} aria-hidden className="shrink-0" />}
                 onClick={(event) => handleClick(event, to)}
