@@ -4,6 +4,7 @@ import { ChevronRightIcon } from "@quickadui/icons";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@quickadui/data";
 import { routes } from "@/app/routes/routes";
 import { getModeLabel, scoreVariant } from "@/features/texts";
+import { getUserId } from "@/lib/session";
 import { formatDateTime, formatNumber, truncateWords } from "@/utils/format";
 import type { HistoryItemDto } from "../types/History";
 
@@ -13,7 +14,9 @@ interface HistoryTableProps {
 
 export const HistoryTable = ({ items }: HistoryTableProps) => {
   const navigate = useNavigate();
-  const detailPath = (item: HistoryItemDto) => `${routes.correction}/${item.id}/${item.user_id}`;
+  // L'API ne renvoie pas user_id pour un texte : le détail est toujours celui de l'utilisateur connecté
+  const userId = getUserId();
+  const detailPath = (item: HistoryItemDto) => `${routes.correction}/${item.id}/${userId}`;
 
   return (
     <div className="overflow-x-auto rounded-xl border border-neutral-6 bg-neutral-1">
