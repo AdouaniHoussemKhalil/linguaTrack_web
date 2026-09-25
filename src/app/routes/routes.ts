@@ -5,4 +5,5 @@ export const routes = {
   dashboard: "/dashboard",
   correction: "/correction",
   history: "/history",
+  settings: "/settings",
 };
