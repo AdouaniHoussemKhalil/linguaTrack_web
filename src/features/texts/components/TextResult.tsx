@@ -1,306 +1,127 @@
-import Card from "@/components/ui/Card";
-import { style } from "typestyle";
-import { colors } from "@/components/common/Colors";
-import type { AnalyseTextResult } from "@/features/texts/types/text";
 import { useState } from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  copyToClipboard,
+} from "@quickadui/core";
+import { CheckIcon, CopyIcon } from "@quickadui/icons";
+import { ScoreRing } from "@/components/ScoreRing";
+import { formatDateTime, formatNumber } from "@/utils/format";
+import { getModeLabel, severityDisplay } from "../constants";
+import type { AnalyseTextResult } from "../types/text";
 
 interface TextResultProps {
   result: AnalyseTextResult;
 }
 
-const TextResult: React.FC<TextResultProps> = ({ result }) => {
-  const [expandedError, setExpandedError] = useState<number | null>(null);
-  const [displayErrors, setDisplayErrors] = useState(false);
+const TextResult = ({ result }: TextResultProps) => {
+  const [copied, setCopied] = useState(false);
+  const errors = result.errors ?? [];
+
+  const handleCopy = async () => {
+    if (await copyToClipboard(result.corrected_text)) {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
-    <Card width="large" header="Résultat de l'analyse">
-      <div className={gridStyle}>
-        <div>
-          <div className={sectionTitle}>Résumé</div>
-          <div className={textBlockStyle}>
-            <div className={subTitle}>Texte corrigé</div>
-            <div className={textStyle}>{result.corrected_text}</div>
-          </div>
-          <div className={infoRow}>
-            <span>Score</span>
-            <strong>
-              {result.score !== null
-                ? `${result.score.toFixed(1)} / 100`
-                : "N/A"}
-            </strong>
-          </div>
-
-          <div className={infoRow}>
-            <span>Temps de traitement</span>
-            <strong>
-              {result.processing_time !== null
-                ? `${result.processing_time.toFixed(2)} s`
-                : "N/A"}
-            </strong>
-          </div>
-
-          <div className={infoRow}>
-            <span>Mode</span>
-            <strong>{result.mode}</strong>
-          </div>
-
-          <div className={infoRow}>
-            <span>Niveau ciblé</span>
-            <strong>{result.target_level ?? "Aucun"}</strong>
-          </div>
-
-          <div
-            className={clickableRow}
-            onClick={() => setDisplayErrors(!displayErrors)}
-          >
-            <span>Erreurs détectées ({result.errors?.length ?? 0})</span>
-
-            {result.errors && result.errors.length > 0 && (
-              <span className={arrowStyle}>{displayErrors ? "▲" : "▼"}</span>
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <CardTitle>Résultat de l'analyse</CardTitle>
+          <CardDescription>{formatDateTime(result.created_at)}</CardDescription>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline">{getModeLabel(result.mode)}</Badge>
+            {result.target_level && <Badge variant="outline">Niveau {result.target_level}</Badge>}
+            {result.processing_time !== null && (
+              <Badge variant="outline">{formatNumber(result.processing_time)} s</Badge>
             )}
           </div>
-
-          {displayErrors && result.errors && result.errors.length > 0 && (
-            <div className={errorsContainerStyle}>
-              {result.errors.map((error, index) => (
-                <div key={index} className={accordionItemStyle}>
-                  <div
-                    className={accordionHeaderStyle}
-                    onClick={() =>
-                      setExpandedError(expandedError === index ? null : index)
-                    }
-                  >
-                    <span className={accordionIconStyle}>
-                      {expandedError === index ? "▼" : "▶"}
-                    </span>
-
-                    <span className={errorTypeStyle}>{error.error_type}</span>
-
-                    {error.severity && (
-                      <span className={severityStyle}>{error.severity}</span>
-                    )}
-                  </div>
-
-                  {expandedError === index && (
-                    <div className={accordionContentStyle}>
-                      <div className={errorDetailStyle}>
-                        <div className={errorLabelStyle}>Fragment original</div>
-
-                        <div className={errorFragmentStyle}>
-                          {error.original_fragment}
-                        </div>
-                      </div>
-
-                      <div className={errorDetailStyle}>
-                        <div className={errorLabelStyle}>Fragment corrigé</div>
-
-                        <div className={correctedFragmentStyle}>
-                          {error.corrected_fragment}
-                        </div>
-                      </div>
-
-                      <div className={errorDetailStyle}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "5px",
-                          }}
-                          className={errorLabelStyle}
-                        >
-                          Explication
-                          <span className="material-symbols-outlined">
-                            {"info"}
-                          </span>
-                        </div>
-
-                        <div className={explanationStyle}>
-                          {error.explanation}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className={infoRow}>
-            <span>Date</span>
-            <strong>{new Date(result.created_at).toLocaleString()}</strong>
-          </div>
         </div>
-      </div>
+        <ScoreRing score={result.score} size={96} />
+      </CardHeader>
 
-      {/* <div className={textBlockStyle}>
-        <div className={subTitle}>Texte original</div>
-        <div className={textStyle}>{result.original_text}</div>
-      </div>
+      <CardContent className="flex flex-col gap-6">
+        <section className="flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-neutral-12">Texte corrigé</h3>
+            <Button variant="ghost" size="sm" onClick={handleCopy} aria-live="polite">
+              {copied ? <CheckIcon size={14} aria-hidden /> : <CopyIcon size={14} aria-hidden />}
+              {copied ? "Copié" : "Copier"}
+            </Button>
+          </div>
+          <p className="whitespace-pre-wrap rounded-lg border border-success-6 bg-success-2 p-4 leading-relaxed text-neutral-12">
+            {result.corrected_text}
+          </p>
+        </section>
 
-      <div className={textBlockStyle}>
-        <div className={subTitle}>Texte corrigé</div>
-        <div className={textStyle}>{result.corrected_text}</div>
-      </div> */}
+        <section className="flex flex-col gap-2">
+          <h3 className="text-sm font-semibold text-neutral-12">
+            Erreurs détectées <span className="font-normal text-neutral-11">({errors.length})</span>
+          </h3>
+
+          {errors.length === 0 ? (
+            <p className="rounded-lg border border-neutral-6 p-4 text-sm text-neutral-11">
+              Aucune erreur détectée. Bravo !
+            </p>
+          ) : (
+            <Accordion type="multiple" className="rounded-lg border border-neutral-6 px-4">
+              {errors.map((error, index) => {
+                const severity = error.severity ? severityDisplay[error.severity] : undefined;
+
+                return (
+                  <AccordionItem key={error.id ?? index} value={String(index)}>
+                    <AccordionTrigger>
+                      <span className="flex flex-1 flex-wrap items-center gap-2 text-left">
+                        <span className="font-medium capitalize">{error.error_type}</span>
+                        {severity && <Badge variant={severity.variant}>{severity.label}</Badge>}
+                        <span className="hidden truncate text-sm font-normal text-neutral-11 sm:inline">
+                          « {error.original_fragment} » → « {error.corrected_fragment} »
+                        </span>
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="flex flex-col gap-3 pb-2">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs font-semibold uppercase tracking-wide text-neutral-11">Original</span>
+                            <p className="rounded-md border border-danger-6 bg-danger-2 p-3 font-mono text-sm text-neutral-12 line-through decoration-danger-9">
+                              {error.original_fragment}
+                            </p>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs font-semibold uppercase tracking-wide text-neutral-11">Correction</span>
+                            <p className="rounded-md border border-success-6 bg-success-2 p-3 font-mono text-sm text-neutral-12">
+                              {error.corrected_fragment}
+                            </p>
+                          </div>
+                        </div>
+                        {error.explanation && (
+                          <p className="rounded-md bg-neutral-2 p-3 text-sm leading-relaxed text-neutral-11">
+                            {error.explanation}
+                          </p>
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+          )}
+        </section>
+      </CardContent>
     </Card>
   );
 };
 
 export default TextResult;
-
-/* ===================== STYLES ===================== */
-
-const gridStyle = style({
-  display: "grid",
-  gap: "18px",
-});
-
-const sectionTitle = style({
-  fontSize: "16px",
-  fontWeight: 700,
-  marginBottom: "16px",
-  color: colors.primary,
-});
-
-const infoRow = style({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "10px 0",
-  borderBottom: `1px solid ${colors.mywhite}`,
-  fontSize: "14px",
-});
-
-const clickableRow = style({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "12px 0",
-  borderBottom: `1px solid ${colors.mywhite}`,
-  cursor: "pointer",
-  $nest: {
-    "&:hover": {
-      color: colors.primary,
-    },
-  },
-});
-
-const arrowStyle = style({
-  fontSize: "18px",
-});
-
-const textBlockStyle = style({
-  marginTop: "24px",
-});
-
-const subTitle = style({
-  fontWeight: 700,
-  marginBottom: "10px",
-});
-
-const textStyle = style({
-  minHeight: "120px",
-  padding: "16px",
-  borderRadius: "10px",
-  backgroundColor: colors.green,
-  border: `1px solid ${colors.mywhite}`,
-  whiteSpace: "pre-wrap",
-  lineHeight: 1.6,
-});
-
-const errorsContainerStyle = style({
-  marginTop: "15px",
-  marginBottom: "20px",
-  display: "flex",
-  flexDirection: "column",
-  gap: "14px",
-});
-
-const accordionItemStyle = style({
-  border: `1px solid ${colors.border}`,
-  borderRadius: "10px",
-  overflow: "hidden",
-  backgroundColor: colors.white,
-  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-});
-
-const accordionHeaderStyle = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "12px",
-  padding: "16px",
-  cursor: "pointer",
-  backgroundColor: colors.surfaceMuted,
-
-  $nest: {
-    "&:hover": {
-      backgroundColor: colors.surfaceHover,
-    },
-  },
-});
-
-const accordionIconStyle = style({
-  width: "18px",
-  color: colors.gray,
-});
-
-const errorTypeStyle = style({
-  flex: 1,
-  fontWeight: 600,
-  color: colors.primary,
-  textTransform: "capitalize",
-});
-
-const severityStyle = style({
-  backgroundColor: colors.error,
-  color: "#fff",
-  padding: "4px 10px",
-  borderRadius: "20px",
-  fontSize: "12px",
-  fontWeight: 600,
-});
-
-const accordionContentStyle = style({
-  padding: "18px",
-  display: "flex",
-  flexDirection: "column",
-  gap: "18px",
-  backgroundColor: colors.white,
-});
-
-const errorDetailStyle = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "6px",
-});
-
-const errorLabelStyle = style({
-  fontSize: "12px",
-  fontWeight: 700,
-  color: colors.gray,
-  textTransform: "uppercase",
-});
-
-const errorFragmentStyle = style({
-  padding: "12px",
-  borderRadius: "8px",
-  backgroundColor: colors.dangerBg,
-  border: `1px solid ${colors.dangerBorder}`,
-  fontFamily: "monospace",
-});
-
-const correctedFragmentStyle = style({
-  padding: "12px",
-  borderRadius: "8px",
-  backgroundColor: colors.successBg,
-  border: `1px solid ${colors.successBorder}`,
-  fontFamily: "monospace",
-});
-
-const explanationStyle = style({
-  padding: "12px",
-  borderRadius: "8px",
-  backgroundColor: colors.surfaceMuted,
-  border: `1px solid ${colors.border}`,
-  lineHeight: 1.6,
-  color: colors.mygray,
-});

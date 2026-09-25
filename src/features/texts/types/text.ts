@@ -23,11 +23,13 @@ export type ResultUser = {
 };
 
 export type ResultError = {
-  id: string;
+  id?: string;
   text_id?: string;
-  error_type?: string;
-  description?: string;
-  [key: string]: any;
+  error_type: string;
+  severity: "low" | "medium" | "high" | null;
+  original_fragment: string;
+  corrected_fragment: string;
+  explanation: string;
 };
 
 export type AnalyseTextResult = {

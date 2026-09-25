@@ -1,4 +1,5 @@
 import { Navigate } from "react-router";
+import { hasValidSession } from "@/lib/session";
 import { routes } from "./routes";
 
 interface Props {
@@ -6,9 +7,7 @@ interface Props {
 }
 
 export default function ProtectedRoute({ children }: Props) {
-  const isAuthenticated = !!localStorage.getItem("token");
-
-  if (!isAuthenticated) {
+  if (!hasValidSession()) {
     return <Navigate to={routes.login} replace />;
   }
 

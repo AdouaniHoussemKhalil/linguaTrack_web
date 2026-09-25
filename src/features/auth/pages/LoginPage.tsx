@@ -98,7 +98,7 @@ export default function LoginPage() {
             </Alert>
           )}
 
-          <Button type="submit" size="lg" disabled={isPending} className="mt-2 w-full text-neutral-1">
+          <Button type="submit" size="lg" disabled={isPending} className="mt-2 w-full">
             {isPending ? (
               <>
                 <Spinner size="sm" label="Connexion en cours" />

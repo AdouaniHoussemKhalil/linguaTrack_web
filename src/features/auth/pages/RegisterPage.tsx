@@ -202,7 +202,7 @@ export default function RegisterPage() {
             </Alert>
           )}
 
-          <Button type="submit" size="lg" disabled={isPending} className="mt-2 w-full text-neutral-1">
+          <Button type="submit" size="lg" disabled={isPending} className="mt-2 w-full">
             {isPending ? (
               <>
                 <Spinner size="sm" label="Création du compte en cours" />

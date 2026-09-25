@@ -1,8 +1,8 @@
+import type { Period } from "@/utils/period";
+
 export type GetStatsModel = {
   period: Period;
 };
-
-export type Period = "all" | "day" | "week" | "month" | "year";
 
 export type RecentText = {
   id?: string;

@@ -11,10 +11,8 @@ export const useSignIn = () => {
   return useMutation({
     mutationFn: (request: LoginModel) => UserService.loginAsync(request),
     onSuccess: (result) => {
-      if (!result.is_success) {
-        console.error("Login failed:", result.error);
-        return;
-      }
+      // Échec métier (identifiants invalides…) : affiché par la page via son propre onSuccess
+      if (!result.is_success) return;
       queryClient.invalidateQueries({ queryKey: ["user"] });
       navigate(routes.dashboard, { replace: true });
     },
@@ -28,10 +26,7 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: (request: RegisterForm) => UserService.registerAsync(request),
     onSuccess: (result) => {
-      if (!result.is_success) {
-        console.error("Registration failed:", result.error);
-        return;
-      }
+      if (!result.is_success) return;
       queryClient.invalidateQueries({ queryKey: ["user"] });
       navigate(routes.dashboard, { replace: true });
     },

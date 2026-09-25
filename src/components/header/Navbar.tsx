@@ -14,18 +14,11 @@ import {
   Navbar as ShellNavbar,
   NavbarActions,
   NavbarBrand,
-  NavbarContent,
   SidebarTrigger,
   useSidebar,
 } from "@quickadui/shell";
 import { routes } from "@/app/routes/routes";
 import ThemeModeToggle from "./ThemeModeToggle";
-
-const navLinks = [
-  { to: "/contact", label: "Contactez-nous" },
-  { to: "/about", label: "En savoir plus" },
-  { to: "/settings", label: "Paramètres" },
-];
 
 interface NavbarProps {
   /** À activer uniquement sous un `DashboardLayout` / `SidebarProvider`. */
@@ -49,66 +42,38 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebarTrigger, onLogout }) => {
         </Link>
       </NavbarBrand>
 
-      <NavbarContent className="hidden justify-end md:flex">
-        <nav className="flex items-center gap-1">
-          {navLinks.map(({ to, label }) => {
-            const isActive = location.pathname === to;
-
-            return (
-              <Button
-                key={to}
-                asChild
-                variant="ghost"
-                size="sm"
-                className={isActive ? "text-neutral-12" : "text-neutral-11"}
-              >
-                <Link to={to} aria-current={isActive ? "page" : undefined}>
-                  {label}
-                </Link>
-              </Button>
-            );
-          })}
-        </nav>
-      </NavbarContent>
-
-      <NavbarActions className="gap-3">
+      <NavbarActions className="ml-auto gap-3">
         <ThemeModeToggle />
 
         {isLoginPage ? (
-          <Button asChild size="sm" className="text-neutral-1">
+          <Button asChild size="sm">
             <Link to={routes.register}>Créer un compte</Link>
           </Button>
         ) : isRegisterPage ? (
           <Button asChild variant="outline" size="sm">
             <Link to={routes.login}>Se connecter</Link>
           </Button>
-        ) : (
-          <>
-            <Button size="sm" className="text-neutral-1">Upgrade</Button>
+        ) : onLogout ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                aria-label="Menu du compte"
+                className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-8"
+              >
+                <Avatar>
+                  <AvatarFallback>
+                    <UserIcon size={18} />
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+            </DropdownMenuTrigger>
 
-            {onLogout && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    aria-label="Menu du compte"
-                    className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-8"
-                  >
-                    <Avatar>
-                      <AvatarFallback>
-                        <UserIcon size={18} />
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onSelect={onLogout}>Se déconnecter</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </>
-        )}
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={onLogout}>Se déconnecter</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
       </NavbarActions>
     </ShellNavbar>
   );
