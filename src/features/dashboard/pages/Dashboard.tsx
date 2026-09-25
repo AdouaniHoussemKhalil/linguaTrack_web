@@ -10,6 +10,7 @@ import { ErrorTypesChart } from "../components/ErrorTypesChart";
 import { KpiCards } from "../components/KpiCards";
 import { LastTextCard } from "../components/LastTextCard";
 import { ModeDistributionChart } from "../components/ModeDistributionChart";
+import { ScoreProgressChart } from "../components/ScoreProgressChart";
 import { useGetStats } from "../hooks/UseStats";
 
 const DashboardSkeleton = () => (
@@ -84,6 +85,7 @@ export default function Dashboard() {
       ) : (
         <div className="flex flex-col gap-4">
           <KpiCards stats={stats} />
+          <ScoreProgressChart period={period} />
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <ErrorTypesChart counts={stats.error_type_counts} />
