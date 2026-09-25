@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LuMessageSquareText } from "react-icons/lu";
 import {
   Accordion,
   AccordionContent,
@@ -52,6 +53,16 @@ const TextResult = ({ result }: TextResultProps) => {
       </CardHeader>
 
       <CardContent className="flex flex-col gap-6">
+        {result.feedback && (
+          <section aria-label="Appréciation" className="flex gap-3 rounded-lg border border-accent-6 bg-accent-2 p-4">
+            <LuMessageSquareText className="mt-0.5 size-5 shrink-0 text-accent-11" aria-hidden />
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm font-semibold text-neutral-12">Appréciation</h3>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-neutral-11">{result.feedback}</p>
+            </div>
+          </section>
+        )}
+
         <section className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-sm font-semibold text-neutral-12">Texte corrigé</h3>
