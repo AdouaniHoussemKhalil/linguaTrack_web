@@ -104,6 +104,11 @@ export const AnalyzeForm = ({ defaultValues, isPending, onSubmit }: AnalyzeFormP
                 "Analyser"
               )}
             </Button>
+            {isPending && (
+              <p className="text-center text-xs text-neutral-11" aria-live="polite">
+                L'analyse peut prendre jusqu'à quelques minutes si le service principal est indisponible.
+              </p>
+            )}
           </form>
         </Form>
       </CardContent>
