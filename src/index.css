@@ -1,68 +1,140 @@
+@import "tailwindcss";
+@import "@quickadui/theme/tokens.css";
+@import "@quickadui/theme/tailwind-theme.css";
+@import "@quickadui/charts/chart-tokens.css";
+@import "./styles/status-colors.css";
+
+@source "../node_modules/@quickadui/primitives";
+@source "../node_modules/@quickadui/core";
+@source "../node_modules/@quickadui/shell";
+@source "../node_modules/@quickadui/forms";
+@source "../node_modules/@quickadui/charts";
+@source "../node_modules/@quickadui/data";
+@source "../node_modules/@quickadui/overlays";
+
+/*
+ * Couleurs du thème :
+ * - --qa-color-* : écrase les échelles neutral / accent de @quickadui/theme,
+ *   dont le mode clair est trop sombre (neutral-2 = #C9C9CA) et l'accent orange.
+ *   En sombre, accent-9 reste assez foncé (contraste ≥ 4,5) pour le texte blanc
+ *   que QuickadUI impose sur les boutons, la pagination active, etc. ;
+ * - --lt-frame   : cadre de l'image des pages de connexion.
+ * Les sélecteurs sombres reprennent ceux de tokens.css (même spécificité,
+ * déclarés après) : data-theme="dark", ou préférence OS en mode « système ».
+ */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  color-scheme: light;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  --qa-color-neutral-1: #ffffff;
+  --qa-color-neutral-2: #f6f6f6;
+  --qa-color-neutral-3: #f0f0f0;
+  --qa-color-neutral-4: #e8e8e8;
+  --qa-color-neutral-5: #e0e0e0;
+  --qa-color-neutral-6: #e5e7eb;
+  --qa-color-neutral-7: #cecece;
+  --qa-color-neutral-8: #bbbbbb;
+  --qa-color-neutral-9: #8d8d8d;
+  --qa-color-neutral-10: #838383;
+  --qa-color-neutral-11: #555555;
+  --qa-color-neutral-12: #1a1a1a;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --qa-color-accent-1: #fcfcfc;
+  --qa-color-accent-2: #f6f6f6;
+  --qa-color-accent-3: #efefef;
+  --qa-color-accent-4: #e6e6e6;
+  --qa-color-accent-5: #dcdcdc;
+  --qa-color-accent-6: #d0d0d0;
+  --qa-color-accent-7: #b8b8b8;
+  --qa-color-accent-8: #8f8f8f;
+  --qa-color-accent-9: #1a1a1a;
+  --qa-color-accent-10: #333333;
+  --qa-color-accent-11: #1a1a1a;
+  --qa-color-accent-12: #111111;
+
+  --lt-frame: #1a1a1a;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --qa-color-neutral-1: #1a1b1e;
+    --qa-color-neutral-2: #0f1012;
+    --qa-color-neutral-3: #26272b;
+    --qa-color-neutral-4: #2e3035;
+    --qa-color-neutral-5: #35373c;
+    --qa-color-neutral-6: #2e3035;
+    --qa-color-neutral-7: #3d4046;
+    --qa-color-neutral-8: #4b4e55;
+    --qa-color-neutral-9: #6b6e76;
+    --qa-color-neutral-10: #7e818a;
+    --qa-color-neutral-11: #b0b3b8;
+    --qa-color-neutral-12: #ececec;
+
+    --qa-color-accent-1: #1a1b1e;
+    --qa-color-accent-2: #1f2023;
+    --qa-color-accent-3: #2a2b2f;
+    --qa-color-accent-4: #323338;
+    --qa-color-accent-5: #3a3c41;
+    --qa-color-accent-6: #44464c;
+    --qa-color-accent-7: #55585f;
+    --qa-color-accent-8: #7e818a;
+    --qa-color-accent-9: #52555c;
+    --qa-color-accent-10: #62656d;
+    --qa-color-accent-11: #ececec;
+    --qa-color-accent-12: #f5f5f5;
+
+    --lt-frame: #26272b;
+  }
 }
-a:hover {
-  color: #535bf2;
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --qa-color-neutral-1: #1a1b1e;
+  --qa-color-neutral-2: #0f1012;
+  --qa-color-neutral-3: #26272b;
+  --qa-color-neutral-4: #2e3035;
+  --qa-color-neutral-5: #35373c;
+  --qa-color-neutral-6: #2e3035;
+  --qa-color-neutral-7: #3d4046;
+  --qa-color-neutral-8: #4b4e55;
+  --qa-color-neutral-9: #6b6e76;
+  --qa-color-neutral-10: #7e818a;
+  --qa-color-neutral-11: #b0b3b8;
+  --qa-color-neutral-12: #ececec;
+
+  --qa-color-accent-1: #1a1b1e;
+  --qa-color-accent-2: #1f2023;
+  --qa-color-accent-3: #2a2b2f;
+  --qa-color-accent-4: #323338;
+  --qa-color-accent-5: #3a3c41;
+  --qa-color-accent-6: #44464c;
+  --qa-color-accent-7: #55585f;
+  --qa-color-accent-8: #7e818a;
+  --qa-color-accent-9: #52555c;
+  --qa-color-accent-10: #62656d;
+  --qa-color-accent-11: #ececec;
+  --qa-color-accent-12: #f5f5f5;
+
+  --lt-frame: #26272b;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  @apply bg-neutral-1 text-neutral-12;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+/* Tailwind v4 remet le curseur par défaut sur les boutons : on rétablit la main. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 }

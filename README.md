@@ -1,16 +1,61 @@
-# React + Vite
+# LinguaTrack — front
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interface web de LinguaTrack, l'application de correction de textes en français assistée par IA :
+l'utilisateur soumet un texte et un mode, l'API renvoie le texte corrigé, un score /100 et les erreurs
+expliquées. Le tableau de bord et l'historique permettent de suivre sa progression.
 
-Currently, two official plugins are available:
+L'API (FastAPI) vit dans un dépôt séparé : `linguaTrack_back_end`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Stack
 
-## React Compiler
+- React 19, TypeScript, Vite 7, React Router 7
+- [QuickadUI](https://quickadui-docs-nu.vercel.app/) (`@quickadui/*`) + Tailwind CSS v4 pour toute l'interface
+- TanStack Query (données serveur), Axios, react-hook-form + zod (formulaires)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Démarrer
 
-## Expanding the ESLint configuration
+```bash
+npm install
+npm run dev      # http://localhost:5173
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Créer un fichier `.env.local` (non commité) pour pointer vers l'API :
+
+```bash
+VITE_API_URL=http://localhost:8000
+```
+
+Sans cette variable, le front appelle `http://localhost:8000`.
+
+| Commande | Rôle |
+|---|---|
+| `npm run dev` | Serveur de développement |
+| `npm run build` | Vérification TypeScript + build de production dans `dist/` |
+| `npm run lint` | ESLint |
+| `npm run preview` | Sert le build de production |
+
+Avec Docker : `docker-compose up --build -V` (`-V` recrée le `node_modules` du conteneur après un changement de dépendances).
+
+## Organisation
+
+```
+src/
+├── App.tsx              # routes (pages chargées à la demande)
+├── index.css            # Tailwind + thème QuickadUI (couleurs clair / sombre)
+├── app/                 # layouts (Auth, Private, Public), routes, page 404
+├── components/          # composants partagés : Navbar, Sidebar, PageHeader, EmptyState, ScoreRing…
+├── features/            # une feature = pages/, components/, hooks/, services/, types/
+│   ├── auth/            # connexion, inscription
+│   ├── dashboard/       # statistiques
+│   ├── history/         # historique des analyses
+│   └── texts/           # analyse et résultat d'un texte
+├── hooks/, lib/, utils/ # utilitaires (axios, erreurs, formatage, périodes)
+└── styles/              # correctifs des échelles de couleurs QuickadUI
+```
+
+Conventions :
+
+- Les appels API se font uniquement dans `features/*/services/`, exposés par des hooks TanStack Query dans `features/*/hooks/`.
+- Une feature n'importe une autre feature que via son `index.ts`.
+- Couleurs : uniquement les tokens sémantiques QuickadUI (`bg-neutral-1`, `text-neutral-12`, `bg-accent-9`…), jamais de couleur codée en dur, pour que les thèmes clair et sombre fonctionnent.
+- Textes de l'interface en français.
