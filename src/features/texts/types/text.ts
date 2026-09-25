@@ -39,6 +39,8 @@ export type AnalyseTextResult = {
   mode: TextMode;
   target_level: string | null;
   score: number | null;
+  /** Appréciation globale du LLM ; absente pour les textes analysés avant son enregistrement. */
+  feedback?: string | null;
   processing_time: number | null;
   created_at: string;
   user?: ResultUser;
