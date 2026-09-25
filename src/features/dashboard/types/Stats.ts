@@ -39,3 +39,19 @@ export type GetStatsDto = {
 
   error_type_percentages: Record<string, number>;
 };
+
+export type ProgressGranularity = "hour" | "day" | "week" | "month";
+
+/** Un intervalle de GET /texts/progress ; average_score est null quand aucun texte n'a été analysé. */
+export type ProgressPoint = {
+  start: string;
+  texts: number;
+  average_score: number | null;
+  errors: number;
+};
+
+export type ProgressDto = {
+  period: Period;
+  granularity: ProgressGranularity;
+  points: ProgressPoint[];
+};
