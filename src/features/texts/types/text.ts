@@ -34,7 +34,6 @@ export type ResultError = {
 
 export type AnalyseTextResult = {
   id: string;
-  user_id: string;
   original_text: string;
   corrected_text: string;
   mode: TextMode;

@@ -1,21 +1,37 @@
 const TOKEN_KEY = "token";
 const USER_ID_KEY = "userId";
 
-/** Vrai si le JWT est lisible et non expiré (sans vérifier la signature : c'est le rôle de l'API). */
-const isTokenUsable = (token: string): boolean => {
+type TokenPayload = { exp?: number; sub?: string };
+
+/** Contenu du JWT (sans vérifier la signature : c'est le rôle de l'API) ; null s'il est illisible. */
+const readPayload = (token: string): TokenPayload | null => {
   try {
     const payload = token.split(".")[1];
-    if (!payload) return false;
-    const { exp } = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/"))) as { exp?: number };
-    return typeof exp !== "number" || exp * 1000 > Date.now();
+    if (!payload) return null;
+    return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/"))) as TokenPayload;
   } catch {
-    return false;
+    return null;
   }
+};
+
+/** Vrai si le JWT est lisible et non expiré. */
+const isTokenUsable = (token: string): boolean => {
+  const payload = readPayload(token);
+  return payload !== null && (typeof payload.exp !== "number" || payload.exp * 1000 > Date.now());
 };
 
 export const getToken = (): string | null => localStorage.getItem(TOKEN_KEY);
 
-export const getUserId = (): string | null => localStorage.getItem(USER_ID_KEY);
+/**
+ * Identifiant de l'utilisateur connecté. Repli sur le `sub` du JWT : les comptes créés
+ * avant que l'inscription n'enregistre `userId` ont un token mais pas d'identifiant stocké.
+ */
+export const getUserId = (): string | null => {
+  const stored = localStorage.getItem(USER_ID_KEY);
+  if (stored) return stored;
+  const token = getToken();
+  return (token && readPayload(token)?.sub) || null;
+};
 
 export const saveSession = (token: string, userId: string) => {
   localStorage.setItem(TOKEN_KEY, token);
