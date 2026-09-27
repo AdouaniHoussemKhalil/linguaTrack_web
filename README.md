@@ -32,7 +32,12 @@ Sans cette variable, le front appelle `http://localhost:8000`.
 | `npm run dev` | Serveur de développement |
 | `npm run build` | Vérification TypeScript + build de production dans `dist/` |
 | `npm run lint` | ESLint |
+| `npm test` | Tests (Vitest + Testing Library) ; `npm run test:watch` en continu |
 | `npm run preview` | Sert le build de production |
+
+Les tests sont à côté du code testé (`*.test.ts(x)`). La CI GitHub Actions
+([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) lance lint, tests et build sur chaque Pull Request et
+chaque push vers `develop` et `main`.
 
 Avec Docker : `docker-compose up --build -V` (`-V` recrée le `node_modules` du conteneur après un changement de dépendances).
 
