@@ -51,6 +51,8 @@ function App() {
           <Route path={routes.dashboard} element={<Dashboard />} />
           <Route path={routes.history} element={<HistoryPage />} />
           <Route path={routes.correction} element={<TextsPage />} />
+          <Route path={`${routes.correction}/:id`} element={<TextsPage />} />
+          {/* Ancienne adresse (avec userId) : les liens déjà partagés restent valides */}
           <Route path={`${routes.correction}/:id/:userId`} element={<TextsPage />} />
           <Route path={routes.settings} element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
