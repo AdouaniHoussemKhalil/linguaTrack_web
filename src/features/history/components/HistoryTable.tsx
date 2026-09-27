@@ -1,22 +1,21 @@
 import { Link, useNavigate } from "react-router";
-import { Badge } from "@quickadui/core";
-import { ChevronRightIcon } from "@quickadui/icons";
+import { Badge, IconButton } from "@quickadui/core";
+import { TrashIcon } from "@quickadui/icons";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@quickadui/data";
 import { routes } from "@/app/routes/routes";
 import { getModeLabel, scoreVariant } from "@/features/texts";
-import { getUserId } from "@/lib/session";
 import { formatDateTime, formatNumber, truncateWords } from "@/utils/format";
 import type { HistoryItemDto } from "../types/History";
 
 interface HistoryTableProps {
   items: HistoryItemDto[];
+  /** Demande de suppression d'un texte (la confirmation est gérée par la page). */
+  onDelete?: ((item: HistoryItemDto) => void) | undefined;
 }
 
-export const HistoryTable = ({ items }: HistoryTableProps) => {
+export const HistoryTable = ({ items, onDelete }: HistoryTableProps) => {
   const navigate = useNavigate();
-  // L'API ne renvoie pas user_id pour un texte : le détail est toujours celui de l'utilisateur connecté
-  const userId = getUserId();
-  const detailPath = (item: HistoryItemDto) => `${routes.correction}/${item.id}/${userId}`;
+  const detailPath = (item: HistoryItemDto) => `${routes.correction}/${item.id}`;
 
   return (
     <div className="overflow-x-auto rounded-xl border border-neutral-6 bg-neutral-1">
@@ -29,8 +28,8 @@ export const HistoryTable = ({ items }: HistoryTableProps) => {
             <TableHead className="text-right">Score</TableHead>
             <TableHead className="hidden text-right sm:table-cell">Erreurs</TableHead>
             <TableHead className="hidden text-right lg:table-cell">Temps</TableHead>
-            <TableHead className="w-10">
-              <span className="sr-only">Ouvrir</span>
+            <TableHead className="w-12">
+              <span className="sr-only">Actions</span>
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -67,8 +66,22 @@ export const HistoryTable = ({ items }: HistoryTableProps) => {
               <TableCell className="hidden whitespace-nowrap text-right tabular-nums text-neutral-11 lg:table-cell">
                 {item.processing_time === null ? "–" : `${formatNumber(item.processing_time)} s`}
               </TableCell>
-              <TableCell className="text-neutral-9">
-                <ChevronRightIcon size={16} aria-hidden />
+              <TableCell className="text-right">
+                {onDelete && (
+                  <IconButton
+                    variant="ghost"
+                    size="sm"
+                    aria-label={`Supprimer « ${truncateWords(item.original_text, 5)} »`}
+                    title="Supprimer"
+                    className="text-neutral-10 hover:text-danger-11"
+                    onClick={(event) => {
+                      event.stopPropagation(); // ne pas ouvrir le détail
+                      onDelete(item);
+                    }}
+                  >
+                    <TrashIcon size={16} aria-hidden />
+                  </IconButton>
+                )}
               </TableCell>
             </TableRow>
           ))}

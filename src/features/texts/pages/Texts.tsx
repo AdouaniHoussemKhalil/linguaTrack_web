@@ -31,9 +31,9 @@ const ResultSkeleton = () => (
 );
 
 const TextsPage = () => {
-  const { id, userId } = useParams<{ id?: string; userId?: string }>();
+  const { id } = useParams<{ id?: string }>();
   const location = useLocation();
-  const { data: loadedResult, isLoading: isLoadingText, error: loadError } = useTextById(id, userId);
+  const { data: loadedResult, isLoading: isLoadingText, error: loadError } = useTextById(id);
   const { mutate: analyze, isPending, data: analyzedResult } = useTexts();
 
   // Un résultat d'analyse ne vaut que pour la navigation où il a été demandé :

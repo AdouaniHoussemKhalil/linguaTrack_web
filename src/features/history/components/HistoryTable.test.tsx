@@ -1,8 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it } from "vitest";
-import { saveSession } from "@/lib/session";
-import { fakeJwt, inSeconds } from "@/test/jwt";
+import { describe, expect, it, vi } from "vitest";
 import type { HistoryItemDto } from "../types/History";
 import { HistoryTable } from "./HistoryTable";
 
@@ -11,17 +10,30 @@ const item: HistoryItemDto = {
   mode: "correction", target_level: null, score: 80, processing_time: 3.2, created_at: "2026-09-25T10:00:00Z", errors: [],
 };
 
+const renderTable = (onDelete?: (item: HistoryItemDto) => void) =>
+  render(<MemoryRouter><HistoryTable items={[item]} onDelete={onDelete} /></MemoryRouter>);
+
 describe("HistoryTable", () => {
-  it("ouvre le détail avec l'identifiant de la session (l'API ne renvoie pas user_id)", () => {
-    saveSession(fakeJwt({ sub: "user-1", exp: inSeconds(3600) }), "user-1");
-    render(<MemoryRouter><HistoryTable items={[item]} /></MemoryRouter>);
-    expect(screen.getByRole("link", { name: /Les enfants joue/ })).toHaveAttribute("href", "/correction/texte-1/user-1");
+  it("ouvre le détail à l'adresse /correction/{id}", () => {
+    renderTable();
+    expect(screen.getByRole("link", { name: /Les enfants joue/ })).toHaveAttribute("href", "/correction/texte-1");
   });
 
   it("affiche le mode et le score", () => {
-    saveSession(fakeJwt({ sub: "user-1", exp: inSeconds(3600) }), "user-1");
-    render(<MemoryRouter><HistoryTable items={[item]} /></MemoryRouter>);
+    renderTable();
     expect(screen.getByText("Correction")).toBeInTheDocument();
     expect(screen.getByText("80")).toBeInTheDocument();
+  });
+
+  it("demande la suppression du texte sans ouvrir son détail", async () => {
+    const onDelete = vi.fn();
+    renderTable(onDelete);
+    await userEvent.click(screen.getByRole("button", { name: /Supprimer « Les enfants joue/ }));
+    expect(onDelete).toHaveBeenCalledWith(item);
+  });
+
+  it("n'affiche pas de bouton de suppression sans action", () => {
+    renderTable();
+    expect(screen.queryByRole("button", { name: /Supprimer/ })).not.toBeInTheDocument();
   });
 });
