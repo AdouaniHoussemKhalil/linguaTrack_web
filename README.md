@@ -42,6 +42,18 @@ sert de relais (voir le README du back) : inscription avec vérification de l'ad
 vérification en deux étapes (code par email), connexion Google, mot de passe oublié. La MFA s'active dans
 **Paramètres**. Les messages d'erreur du service (`error.code`) sont traduits dans `src/lib/errors.ts`.
 
+**Code ou lien.** La vérification d'email et le mot de passe oublié fonctionnent par code à 6 chiffres ou par lien,
+selon le réglage de l'application dans le dashboard d'auth (fiche → « URLs et vérification ») ; le front suit le mode
+indiqué par les réponses (`emailVerificationMode`, `passwordResetMode`). En mode lien, déclarer dans le dashboard :
+
+| Réglage du dashboard | URL (en local) | Page |
+|---|---|---|
+| Page « adresse confirmée » | `http://localhost:5173/email-verified` | Confirmation, bouton « Se connecter » |
+| Page « lien invalide » | `http://localhost:5173/email-verification-failed` | `?reason=expired\|invalid`, renvoi d'un lien |
+| URL de réinitialisation | `http://localhost:5173/reset-password` | `?token=…&email=…` : nouveau mot de passe |
+
+Ces pages sont publiques. Le jeton de réinitialisation est retiré de la barre d'adresse dès l'ouverture de la page.
+
 | Commande | Rôle |
 |---|---|
 | `npm run dev` | Serveur de développement |

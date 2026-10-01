@@ -7,17 +7,23 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input }
 import { routes } from "@/app/routes/routes";
 import { getErrorMessage } from "@/lib/errors";
 import { CodeForm } from "../components/CodeForm";
+import { LinkSent } from "../components/LinkSent";
 import { useResendVerification, useVerifyEmail } from "../hooks/useAuth";
 import { emailSchema, type EmailFormSchema } from "../schemas/loginSchema";
+import type { VerificationMode } from "../types/User";
 
-/** `resend` : arrivée depuis la connexion (adresse non vérifiée), un nouveau code est envoyé. */
-type VerifyEmailState = { email?: string; resend?: boolean } | null;
+/**
+ * `resend` : arrivée depuis la connexion (adresse non vérifiée), un nouveau code (ou lien) est envoyé.
+ * `mode` : depuis l'inscription, code à saisir ou lien à cliquer (réglage de l'application).
+ */
+type VerifyEmailState = { email?: string; resend?: boolean; mode?: VerificationMode } | null;
 
 export default function VerifyEmailPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as VerifyEmailState;
   const [email, setEmail] = useState(state?.email ?? "");
+  const [mode, setMode] = useState<VerificationMode>(state?.mode ?? "code");
   const [error, setError] = useState<string | null>(null);
   const [resendNotice, setResendNotice] = useState<string | null>(null);
   const { mutate: verifyEmail, isPending } = useVerifyEmail();
@@ -27,7 +33,10 @@ export default function VerifyEmailPage() {
     setError(null);
     setResendNotice(null);
     resend(address, {
-      onSuccess: () => setResendNotice(notice),
+      onSuccess: (sentMode) => {
+        setMode(sentMode);
+        setResendNotice(sentMode === "link" ? "Un nouveau lien vous a été envoyé." : notice);
+      },
       onError: (err) => setError(getErrorMessage(err)),
     });
   };
@@ -49,17 +58,29 @@ export default function VerifyEmailPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold text-neutral-12">Vérifiez votre adresse email</h1>
         <p className="text-sm text-neutral-11">
-          {email ? (
+          {!email ? (
+            "Indiquez l'adresse de votre compte pour recevoir un code ou un lien de vérification."
+          ) : mode === "link" ? (
+            "Dernière étape avant d'utiliser LinguaTrack."
+          ) : (
             <>
               Saisissez le code envoyé à <span className="font-medium text-neutral-12">{email}</span>.
             </>
-          ) : (
-            "Indiquez l'adresse de votre compte pour recevoir un code."
           )}
         </p>
       </div>
 
-      {email ? (
+      {email && mode === "link" ? (
+        <LinkSent
+          onResend={() => sendCode(email)}
+          isResending={isResending}
+          resendNotice={resendNotice}
+          error={error}
+        >
+          Nous avons envoyé un lien de confirmation à <span className="font-medium">{email}</span>. Cliquez dessus
+          pour activer votre compte, puis connectez-vous.
+        </LinkSent>
+      ) : email ? (
         <CodeForm
           submitLabel="Vérifier mon adresse"
           pendingLabel="Vérification…"
@@ -108,8 +129,8 @@ export default function VerifyEmailPage() {
               )}
             />
             <Button type="submit" size="lg" disabled={isResending} className="w-full">
-              {isResending && <Spinner size="sm" label="Envoi du code" />}
-              Recevoir un code
+              {isResending && <Spinner size="sm" label="Envoi" />}
+              Vérifier mon adresse
             </Button>
           </form>
         </Form>
