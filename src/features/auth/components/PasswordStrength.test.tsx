@@ -5,7 +5,7 @@ import PasswordStrength from "./PasswordStrength";
 
 describe("PasswordStrength", () => {
   it("indique « Fort » quand toutes les règles sont respectées", () => {
-    render(<PasswordStrength value="Abcdef12" rules={passwordRules} />);
+    render(<PasswordStrength value="Abcdef1!" rules={passwordRules} />);
     expect(screen.getByText("Fort")).toBeInTheDocument();
     expect(screen.getAllByText(/: respectée/)).toHaveLength(passwordRules.length);
   });
