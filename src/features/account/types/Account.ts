@@ -8,6 +8,8 @@ export type UserProfile = {
   last_name: string;
   level: LanguageLevel | null;
   created_at: string;
+  /** Vérification en deux étapes (code par email à la connexion) */
+  mfa_enabled: boolean;
 };
 
 export type UpdateProfileRequest = {
@@ -15,6 +17,8 @@ export type UpdateProfileRequest = {
   lastName?: string;
   level?: LanguageLevel;
 };
+
+export type MfaAction = "activate" | "deactivate";
 
 export type ChangePasswordRequest = {
   current_password: string;

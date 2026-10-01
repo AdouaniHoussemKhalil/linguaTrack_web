@@ -4,7 +4,7 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Spin
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, PasswordInput } from "@quickadui/forms";
 import { toast } from "@quickadui/overlays";
 import { PasswordStrength, passwordRules } from "@/features/auth";
-import { getErrorMessage } from "@/lib/errors";
+import { getErrorCode, getErrorMessage } from "@/lib/errors";
 import { useChangePassword } from "../hooks/useAccount";
 import { passwordSchema, type PasswordFormSchema } from "../schemas";
 
@@ -21,12 +21,12 @@ export const PasswordForm = () => {
       {
         onSuccess: () => {
           form.reset(EMPTY);
-          toast({ variant: "success", title: "Mot de passe modifié" });
+          toast({ variant: "success", title: "Mot de passe modifié", description: "Vos autres appareils ont été déconnectés." });
         },
         onError: (error) => {
           const message = getErrorMessage(error);
           // Erreur sur le mot de passe actuel : affichée sous le champ concerné
-          if (message.includes("actuel incorrect")) form.setError("currentPassword", { message });
+          if (getErrorCode(error) === "currentPasswordNotCorrect") form.setError("currentPassword", { message });
           else toast({ variant: "danger", title: "Modification impossible", description: message });
         },
       },
