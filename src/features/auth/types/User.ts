@@ -28,10 +28,14 @@ export type MfaLoginRequest = {
 export type RegisterFormValues = RegisterFormSchema;
 export type RegisterRequest = RegisterFormSchema;
 
+/** Vérification d'e-mail et mot de passe oublié : code à saisir ou lien reçu par e-mail (réglage de l'application). */
+export type VerificationMode = "code" | "link";
+
 /** Sans `emailVerificationRequired`, la session est déjà ouverte. */
 export type RegisterResponse = {
   user: AuthUser;
   emailVerificationRequired?: boolean;
+  emailVerificationMode?: VerificationMode;
 };
 
 export type VerifyEmailRequest = {

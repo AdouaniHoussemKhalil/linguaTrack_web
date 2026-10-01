@@ -55,7 +55,8 @@ export default function RegisterPage() {
     registerUser(values, {
       onSuccess: (result) => {
         // Adresse à vérifier avant la première connexion ; sinon la session est déjà ouverte
-        if (result.emailVerificationRequired) navigate(routes.verifyEmail, { state: { email: values.email } });
+        if (result.emailVerificationRequired)
+          navigate(routes.verifyEmail, { state: { email: values.email, mode: result.emailVerificationMode } });
         else completeSignIn();
       },
       onError: (err) => setError(getErrorMessage(err, "Une erreur est survenue lors de la création du compte.")),

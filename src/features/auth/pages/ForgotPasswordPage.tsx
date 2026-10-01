@@ -1,23 +1,32 @@
 import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router";
 import { Alert, AlertDescription, Button, Spinner } from "@quickadui/core";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, PasswordInput } from "@quickadui/forms";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from "@quickadui/forms";
 import { routes } from "@/app/routes/routes";
 import { getErrorMessage } from "@/lib/errors";
 import { CodeForm } from "../components/CodeForm";
-import PasswordStrength from "../components/PasswordStrength";
+import { LinkSent } from "../components/LinkSent";
+import { NewPasswordForm } from "../components/NewPasswordForm";
 import { useForgotPassword, useResetPassword, useVerifyResetCode } from "../hooks/useAuth";
 import { emailSchema, type EmailFormSchema } from "../schemas/loginSchema";
-import { newPasswordSchema, passwordRules, type NewPasswordFormSchema } from "../schemas/registerSchema";
 
-/** Étapes : email → code reçu → nouveau mot de passe (le code donne un `resetToken` à usage unique). */
-type Step = { name: "email" } | { name: "code"; email: string } | { name: "password"; email: string; resetToken: string };
+/**
+ * Étapes selon le réglage de l'application :
+ * - code : email → code reçu → nouveau mot de passe (le code donne un `resetToken` à usage unique) ;
+ * - lien : email → « lien envoyé » ; la page /reset-password ouverte par le lien fait le reste.
+ */
+type Step =
+  | { name: "email" }
+  | { name: "code"; email: string }
+  | { name: "link"; email: string }
+  | { name: "password"; email: string; resetToken: string };
 
 const SUBTITLES: Record<Step["name"], string> = {
-  email: "Indiquez l'adresse de votre compte : nous vous enverrons un code.",
+  email: "Indiquez l'adresse de votre compte : nous vous enverrons de quoi choisir un nouveau mot de passe.",
   code: "Si un compte existe pour cette adresse, un code vient de lui être envoyé.",
+  link: "Consultez votre boîte de réception.",
   password: "Choisissez votre nouveau mot de passe.",
 };
 
@@ -26,38 +35,30 @@ export default function ForgotPasswordPage() {
   const [step, setStep] = useState<Step>({ name: "email" });
   const [error, setError] = useState<string | null>(null);
   const [resendNotice, setResendNotice] = useState<string | null>(null);
-  const { mutate: sendCode, isPending: isSending } = useForgotPassword();
+  const { mutate: sendRequest, isPending: isSending } = useForgotPassword();
   const { mutate: verifyCode, isPending: isVerifying } = useVerifyResetCode();
   const { mutate: resetPassword, isPending: isResetting } = useResetPassword();
 
   const emailForm = useForm<EmailFormSchema>({ resolver: zodResolver(emailSchema), defaultValues: { email: "" } });
-  const passwordForm = useForm<NewPasswordFormSchema>({
-    resolver: zodResolver(newPasswordSchema),
-    defaultValues: { password: "", confirmPassword: "" },
-  });
-  const password = useWatch({ control: passwordForm.control, name: "password" });
   const showError = (err: unknown) => setError(getErrorMessage(err));
 
   const onEmailSubmit = emailForm.handleSubmit(({ email }) => {
     setError(null);
-    sendCode(email, { onSuccess: () => setStep({ name: "code", email }), onError: showError });
+    sendRequest(email, {
+      onSuccess: (mode) => setStep(mode === "link" ? { name: "link", email } : { name: "code", email }),
+      onError: showError,
+    });
   });
 
-  const onPasswordSubmit = passwordForm.handleSubmit(({ password: newPassword, confirmPassword }) => {
-    if (step.name !== "password") return;
+  const resend = (email: string) => {
     setError(null);
-    resetPassword(
-      { email: step.email, resetToken: step.resetToken, password: newPassword, confirmPassword },
-      {
-        onSuccess: () =>
-          navigate(routes.login, {
-            replace: true,
-            state: { email: step.email, message: "Mot de passe modifié. Connectez-vous avec le nouveau." },
-          }),
-        onError: showError,
-      },
-    );
-  });
+    setResendNotice(null);
+    sendRequest(email, {
+      onSuccess: (mode) =>
+        setResendNotice(mode === "link" ? "Un nouveau lien vous a été envoyé." : "Un nouveau code vous a été envoyé."),
+      onError: showError,
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,11 +95,18 @@ export default function ForgotPasswordPage() {
               </Alert>
             )}
             <Button type="submit" size="lg" disabled={isSending} className="w-full">
-              {isSending && <Spinner size="sm" label="Envoi du code" />}
-              Recevoir un code
+              {isSending && <Spinner size="sm" label="Envoi" />}
+              Continuer
             </Button>
           </form>
         </Form>
+      )}
+
+      {step.name === "link" && (
+        <LinkSent onResend={() => resend(step.email)} isResending={isSending} resendNotice={resendNotice} error={error}>
+          Si un compte existe pour <span className="font-medium">{step.email}</span>, un lien pour choisir un nouveau
+          mot de passe vient de lui être envoyé. Il est valable quelques minutes.
+        </LinkSent>
       )}
 
       {step.name === "code" && (
@@ -115,61 +123,31 @@ export default function ForgotPasswordPage() {
               { onSuccess: (resetToken) => setStep({ name: "password", email: step.email, resetToken }), onError: showError },
             );
           }}
-          onResend={() => {
-            setError(null);
-            setResendNotice(null);
-            sendCode(step.email, {
-              onSuccess: () => setResendNotice("Un nouveau code vous a été envoyé."),
-              onError: showError,
-            });
-          }}
+          onResend={() => resend(step.email)}
           isResending={isSending}
         />
       )}
 
       {step.name === "password" && (
-        <Form {...passwordForm}>
-          <form onSubmit={onPasswordSubmit} noValidate className="flex flex-col gap-4">
-            {/* Aide les gestionnaires de mots de passe à associer le nouveau mot de passe au compte */}
-            <input type="email" autoComplete="username" value={step.email} readOnly hidden />
-            <FormField
-              control={passwordForm.control}
-              name="password"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Nouveau mot de passe</FormLabel>
-                  <FormControl>
-                    <PasswordInput autoComplete="new-password" autoFocus state={fieldState.invalid ? "error" : "default"} {...field} />
-                  </FormControl>
-                  {password && <PasswordStrength value={password} rules={passwordRules} />}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={passwordForm.control}
-              name="confirmPassword"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Confirmation du mot de passe</FormLabel>
-                  <FormControl>
-                    <PasswordInput autoComplete="new-password" state={fieldState.invalid ? "error" : "default"} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {error && (
-              <Alert variant="danger">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <Button type="submit" size="lg" disabled={isResetting} className="w-full">
-              {isResetting && <Spinner size="sm" label="Enregistrement" />}
-              Changer le mot de passe
-            </Button>
-          </form>
-        </Form>
+        <NewPasswordForm
+          email={step.email}
+          isPending={isResetting}
+          error={error}
+          onSubmit={({ password, confirmPassword }) => {
+            setError(null);
+            resetPassword(
+              { email: step.email, resetToken: step.resetToken, password, confirmPassword },
+              {
+                onSuccess: () =>
+                  navigate(routes.login, {
+                    replace: true,
+                    state: { email: step.email, message: "Mot de passe modifié. Connectez-vous avec le nouveau." },
+                  }),
+                onError: showError,
+              },
+            );
+          }}
+        />
       )}
 
       <p className="text-center text-sm text-neutral-11">

@@ -13,6 +13,9 @@ const LoginPage = lazy(() => import("./features/auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("./features/auth/pages/RegisterPage"));
 const VerifyEmailPage = lazy(() => import("./features/auth/pages/VerifyEmailPage"));
 const ForgotPasswordPage = lazy(() => import("./features/auth/pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./features/auth/pages/ResetPasswordPage"));
+const EmailVerifiedPage = lazy(() => import("./features/auth/pages/EmailVerifiedPage"));
+const EmailVerificationFailedPage = lazy(() => import("./features/auth/pages/EmailVerificationFailedPage"));
 const Dashboard = lazy(() => import("./features/dashboard/pages/Dashboard"));
 const HistoryPage = lazy(() => import("./features/history/pages/HistoryPage"));
 const TextsPage = lazy(() => import("./features/texts/pages/Texts"));
@@ -38,6 +41,10 @@ function App() {
           <Route path={routes.register} element={<RegisterPage />} />
           <Route path={routes.verifyEmail} element={<VerifyEmailPage />} />
           <Route path={routes.forgotPassword} element={<ForgotPasswordPage />} />
+          {/* Liens des e-mails : pages publiques, accessibles aussi avec une session ouverte */}
+          <Route path={routes.resetPassword} element={<ResetPasswordPage />} />
+          <Route path={routes.emailVerified} element={<EmailVerifiedPage />} />
+          <Route path={routes.emailVerificationFailed} element={<EmailVerificationFailedPage />} />
         </Route>
 
         {/* PUBLIC : réservé aux futures pages sans connexion (landing, tarifs…) */}

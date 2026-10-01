@@ -6,6 +6,7 @@ import type {
   RegisterRequest,
   RegisterResponse,
   ResetPasswordRequest,
+  VerificationMode,
   VerifyEmailRequest,
   VerifyResetCodeRequest,
 } from "../types/User";
@@ -32,11 +33,15 @@ export const AuthService = {
   verifyEmail: async (request: VerifyEmailRequest): Promise<void> => {
     await api.post("/auth/verify-email", request);
   },
-  resendVerification: async (email: string): Promise<void> => {
-    await api.post("/auth/resend-verification", { email });
+  /** Renvoie le mode de l'application : un code ou un lien vient d'être envoyé. */
+  resendVerification: async (email: string): Promise<VerificationMode> => {
+    const response = await api.post("/auth/resend-verification", { email });
+    return response.data.emailVerificationMode === "link" ? "link" : "code";
   },
-  forgotPassword: async (email: string): Promise<void> => {
-    await api.post("/auth/forgot-password", { email });
+  /** Renvoie le mode de l'application : un code ou un lien de réinitialisation vient d'être envoyé. */
+  forgotPassword: async (email: string): Promise<VerificationMode> => {
+    const response = await api.post("/auth/forgot-password", { email });
+    return response.data.passwordResetMode === "link" ? "link" : "code";
   },
   verifyResetCode: async (request: VerifyResetCodeRequest): Promise<string> => {
     const response = await api.post("/auth/verify-reset-code", request);
