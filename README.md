@@ -19,13 +19,28 @@ npm install
 npm run dev      # http://localhost:5173
 ```
 
-Créer un fichier `.env.local` (non commité) pour pointer vers l'API :
+L'API doit tourner sur `http://localhost:8000` : le serveur de développement lui relaie les préfixes
+`/auth`, `/users`, `/texts` et `/health` (proxy Vite). Front et API partagent ainsi la même origine, ce
+qui permet la session en cookies `httpOnly` : le front ne stocke aucun token.
+
+Variables facultatives, dans un fichier `.env.local` (non commité) :
 
 ```bash
-VITE_API_URL=http://localhost:8000
+# Client ID OAuth Google (public) : affiche « Continuer avec Google » ; absent, le bouton est masqué
+VITE_GOOGLE_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
+# URL de l'API si elle n'est pas servie sous la même origine (déconseillé : cookies)
+# VITE_API_URL=
 ```
 
-Sans cette variable, le front appelle `http://localhost:8000`.
+Autre cible pour le proxy (Docker, autre port) : variable d'environnement `API_PROXY_TARGET`.
+En production, servir le front et l'API sur le même domaine (reverse proxy avec les mêmes préfixes).
+
+### Authentification
+
+Les comptes sont gérés par le service d'authentification **auth-web-app-api**, via l'API LinguaTrack qui
+sert de relais (voir le README du back) : inscription avec vérification de l'adresse email, connexion avec
+vérification en deux étapes (code par email), connexion Google, mot de passe oublié. La MFA s'active dans
+**Paramètres**. Les messages d'erreur du service (`error.code`) sont traduits dans `src/lib/errors.ts`.
 
 | Commande | Rôle |
 |---|---|
@@ -50,7 +65,8 @@ src/
 ├── app/                 # layouts (Auth, Private, Public), routes, page 404
 ├── components/          # composants partagés : Navbar, Sidebar, PageHeader, EmptyState, ScoreRing…
 ├── features/            # une feature = pages/, components/, hooks/, services/, types/
-│   ├── auth/            # connexion, inscription
+│   ├── auth/            # connexion (+ MFA, Google), inscription, vérification d'email, mot de passe oublié
+│   ├── account/         # paramètres : profil, mot de passe, vérification en deux étapes
 │   ├── dashboard/       # statistiques
 │   ├── history/         # historique des analyses
 │   └── texts/           # analyse et résultat d'un texte
