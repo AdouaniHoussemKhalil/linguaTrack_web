@@ -1,6 +1,7 @@
 import { Alert, AlertDescription, AlertTitle, Button, Skeleton } from "@quickadui/core";
 import { PageHeader } from "@/components/PageHeader";
 import { useMe } from "../hooks/useAccount";
+import { MfaCard } from "../components/MfaCard";
 import { PasswordForm } from "../components/PasswordForm";
 import { ProfileForm } from "../components/ProfileForm";
 
@@ -9,7 +10,7 @@ const SettingsPage = () => {
 
   return (
     <div className="py-6">
-      <PageHeader title="Paramètres" description="Gérez votre profil et votre mot de passe." />
+      <PageHeader title="Paramètres" description="Gérez votre profil, votre mot de passe et la sécurité de votre compte." />
 
       {isLoading ? (
         <div className="grid items-start gap-6 lg:grid-cols-2" aria-busy aria-label="Chargement du profil">
@@ -28,7 +29,10 @@ const SettingsPage = () => {
         </Alert>
       ) : (
         <div className="grid items-start gap-6 lg:grid-cols-2">
-          <ProfileForm user={user} />
+          <div className="flex flex-col gap-6">
+            <ProfileForm user={user} />
+            <MfaCard user={user} />
+          </div>
           <PasswordForm />
         </div>
       )}

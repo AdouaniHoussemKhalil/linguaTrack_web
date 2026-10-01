@@ -1,9 +1,13 @@
 import axios from "axios";
-import { clearSession, getToken } from "./session";
+
+/** Pages accessibles sans session : un 401 n'y déclenche pas de redirection. */
+const PUBLIC_PATHS = ["/login", "/register", "/verify-email", "/forgot-password"];
 
 const api = axios.create({
-  // L'API FastAPI tourne sur le port 8000 en local (voir CLAUDE.md)
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+  // Même origine par défaut (proxy Vite en dev, reverse proxy en production) : la session vit
+  // dans des cookies httpOnly posés par l'API, le front ne manipule aucun token.
+  baseURL: import.meta.env.VITE_API_URL || "",
+  withCredentials: true,
   // L'analyse d'un texte appelle le LLM (Mistral) : 10 s ne suffisaient pas
   timeout: 60_000,
   headers: {
@@ -11,24 +15,18 @@ const api = axios.create({
   },
 });
 
-// Ajoute le token d'authentification
-api.interceptors.request.use(
-  (config) => {
-    const token = getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Session expirée : on nettoie le stockage et on renvoie vers la connexion
+// Session expirée (l'API a déjà tenté de la renouveler) : retour à la connexion.
+// Les routes /auth/* (identifiants invalides…) et /users/me (géré par ProtectedRoute) sont exclues.
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && window.location.pathname !== "/login") {
-      clearSession();
+    const url: string = error.config?.url ?? "";
+    if (
+      error.response?.status === 401 &&
+      !url.startsWith("/auth/") &&
+      url !== "/users/me" &&
+      !PUBLIC_PATHS.includes(window.location.pathname)
+    ) {
       window.location.href = "/login";
     }
     return Promise.reject(error);
