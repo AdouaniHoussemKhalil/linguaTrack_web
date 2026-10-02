@@ -2,7 +2,8 @@ import { useState } from "react";
 import { DashboardLayout } from "@quickadui/shell";
 import Navbar from "@/components/header/Navbar";
 import Sidebar from "@/components/side/Sidebar";
-import { useSignOut } from "@/features/auth/hooks/UseAuth";
+import { getFullName, getInitials, useMe } from "@/features/account";
+import { useSignOut } from "@/features/auth";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface Props {
@@ -13,6 +14,8 @@ const SMALL_SCREEN_QUERY = "(max-width: 900px)";
 
 const PrivateLayout = ({ children }: Props) => {
   const signOut = useSignOut();
+  const { data: me } = useMe();
+  const navbarUser = me && { name: getFullName(me), email: me.email, initials: getInitials(me) };
   const isSmallScreen = useMediaQuery(SMALL_SCREEN_QUERY);
 
   // Replié par défaut sur petit écran ; l'utilisateur peut ensuite basculer
@@ -27,7 +30,7 @@ const PrivateLayout = ({ children }: Props) => {
   return (
     <DashboardLayout
       className="bg-neutral-2"
-      navbar={<Navbar showSidebarTrigger onLogout={signOut} />}
+      navbar={<Navbar showSidebarTrigger onLogout={signOut} user={navbarUser} />}
       sidebar={<Sidebar />}
       sidebarCollapsed={collapsed}
       onSidebarCollapsedChange={setCollapsed}

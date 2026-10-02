@@ -11,9 +11,15 @@ import { routes } from "./app/routes/routes";
 // Une page = un chunk : le code du tableau de bord (graphiques) n'est chargé qu'à la demande.
 const LoginPage = lazy(() => import("./features/auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("./features/auth/pages/RegisterPage"));
+const VerifyEmailPage = lazy(() => import("./features/auth/pages/VerifyEmailPage"));
+const ForgotPasswordPage = lazy(() => import("./features/auth/pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./features/auth/pages/ResetPasswordPage"));
+const EmailVerifiedPage = lazy(() => import("./features/auth/pages/EmailVerifiedPage"));
+const EmailVerificationFailedPage = lazy(() => import("./features/auth/pages/EmailVerificationFailedPage"));
 const Dashboard = lazy(() => import("./features/dashboard/pages/Dashboard"));
 const HistoryPage = lazy(() => import("./features/history/pages/HistoryPage"));
 const TextsPage = lazy(() => import("./features/texts/pages/Texts"));
+const SettingsPage = lazy(() => import("./features/account/pages/SettingsPage"));
 const NotFoundPage = lazy(() => import("./app/pages/NotFoundPage"));
 
 const PageFallback = () => (
@@ -33,6 +39,12 @@ function App() {
         <Route element={<AuthLayout>{withSuspense(<Outlet />)}</AuthLayout>}>
           <Route path={routes.login} element={<LoginPage />} />
           <Route path={routes.register} element={<RegisterPage />} />
+          <Route path={routes.verifyEmail} element={<VerifyEmailPage />} />
+          <Route path={routes.forgotPassword} element={<ForgotPasswordPage />} />
+          {/* Liens des e-mails : pages publiques, accessibles aussi avec une session ouverte */}
+          <Route path={routes.resetPassword} element={<ResetPasswordPage />} />
+          <Route path={routes.emailVerified} element={<EmailVerifiedPage />} />
+          <Route path={routes.emailVerificationFailed} element={<EmailVerificationFailedPage />} />
         </Route>
 
         {/* PUBLIC : réservé aux futures pages sans connexion (landing, tarifs…) */}
@@ -50,7 +62,10 @@ function App() {
           <Route path={routes.dashboard} element={<Dashboard />} />
           <Route path={routes.history} element={<HistoryPage />} />
           <Route path={routes.correction} element={<TextsPage />} />
+          <Route path={`${routes.correction}/:id`} element={<TextsPage />} />
+          {/* Ancienne adresse (avec userId) : les liens déjà partagés restent valides */}
           <Route path={`${routes.correction}/:id/:userId`} element={<TextsPage />} />
+          <Route path={routes.settings} element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

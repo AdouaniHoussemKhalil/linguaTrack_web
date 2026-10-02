@@ -19,20 +19,67 @@ npm install
 npm run dev      # http://localhost:5173
 ```
 
-Créer un fichier `.env.local` (non commité) pour pointer vers l'API :
+L'API doit tourner sur `http://localhost:8000` : le serveur de développement lui relaie les préfixes
+`/auth`, `/users`, `/texts` et `/health` (proxy Vite). Front et API partagent ainsi la même origine, ce
+qui permet la session en cookies `httpOnly` : le front ne stocke aucun token.
+
+Variables facultatives, dans un fichier `.env.local` (non commité) :
 
 ```bash
-VITE_API_URL=http://localhost:8000
+# Client ID OAuth Google (public) : affiche « Continuer avec Google » ; absent, le bouton est masqué
+VITE_GOOGLE_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
+# URL de l'API si elle n'est pas servie sous la même origine (déconseillé : cookies)
+# VITE_API_URL=
 ```
 
-Sans cette variable, le front appelle `http://localhost:8000`.
+Autre cible pour le proxy (Docker, autre port) : variable d'environnement `API_PROXY_TARGET`.
+En production, servir le front et l'API sur le même domaine (reverse proxy avec les mêmes préfixes).
+
+### Déploiement (Render, site statique)
+
+[`render.yaml`](render.yaml) : build `npm ci && npm run build` depuis `main`, publication de `dist/`.
+
+- **Même origine que l'API** : le site relaie `/auth`, `/users`, `/texts` et `/health` vers l'API
+  (`https://linguatrack-api.onrender.com`, à adapter dans `render.yaml` si Render attribue une autre URL). C'est
+  indispensable : deux sous-domaines `onrender.com` sont deux sites différents pour le navigateur, et les cookies
+  de session (`SameSite=Lax`) n'y passeraient pas. `VITE_API_URL` reste donc vide.
+- **React Router** : toute autre adresse sert `index.html` (liens directs vers `/dashboard`, `/reset-password`…).
+- À saisir dans Render : `VITE_GOOGLE_CLIENT_ID` (lu au build : redéployer après une modification).
+- Ensuite : `CORS_ORIGINS` de l'API = URL du site ; dans le dashboard d'auth de production, URLs de l'application
+  (`https://<site>/email-verified`, `/email-verification-failed`, `/reset-password`) ; origine Google autorisée.
+
+Le `Dockerfile` et `docker-compose.yml` servent au développement (serveur Vite), pas à la production.
+
+### Authentification
+
+Les comptes sont gérés par le service d'authentification **auth-web-app-api**, via l'API LinguaTrack qui
+sert de relais (voir le README du back) : inscription avec vérification de l'adresse email, connexion avec
+vérification en deux étapes (code par email), connexion Google, mot de passe oublié. La MFA s'active dans
+**Paramètres**. Les messages d'erreur du service (`error.code`) sont traduits dans `src/lib/errors.ts`.
+
+**Code ou lien.** La vérification d'email et le mot de passe oublié fonctionnent par code à 6 chiffres ou par lien,
+selon le réglage de l'application dans le dashboard d'auth (fiche → « URLs et vérification ») ; le front suit le mode
+indiqué par les réponses (`emailVerificationMode`, `passwordResetMode`). En mode lien, déclarer dans le dashboard :
+
+| Réglage du dashboard | URL (en local) | Page |
+|---|---|---|
+| Page « adresse confirmée » | `http://localhost:5173/email-verified` | Confirmation, bouton « Se connecter » |
+| Page « lien invalide » | `http://localhost:5173/email-verification-failed` | `?reason=expired\|invalid`, renvoi d'un lien |
+| URL de réinitialisation | `http://localhost:5173/reset-password` | `?token=…&email=…` : nouveau mot de passe |
+
+Ces pages sont publiques. Le jeton de réinitialisation est retiré de la barre d'adresse dès l'ouverture de la page.
 
 | Commande | Rôle |
 |---|---|
 | `npm run dev` | Serveur de développement |
 | `npm run build` | Vérification TypeScript + build de production dans `dist/` |
 | `npm run lint` | ESLint |
+| `npm test` | Tests (Vitest + Testing Library) ; `npm run test:watch` en continu |
 | `npm run preview` | Sert le build de production |
+
+Les tests sont à côté du code testé (`*.test.ts(x)`). La CI GitHub Actions
+([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) lance lint, tests et build sur chaque Pull Request et
+chaque push vers `develop` et `main`.
 
 Avec Docker : `docker-compose up --build -V` (`-V` recrée le `node_modules` du conteneur après un changement de dépendances).
 
@@ -45,7 +92,8 @@ src/
 ├── app/                 # layouts (Auth, Private, Public), routes, page 404
 ├── components/          # composants partagés : Navbar, Sidebar, PageHeader, EmptyState, ScoreRing…
 ├── features/            # une feature = pages/, components/, hooks/, services/, types/
-│   ├── auth/            # connexion, inscription
+│   ├── auth/            # connexion (+ MFA, Google), inscription, vérification d'email, mot de passe oublié
+│   ├── account/         # paramètres : profil, mot de passe, vérification en deux étapes
 │   ├── dashboard/       # statistiques
 │   ├── history/         # historique des analyses
 │   └── texts/           # analyse et résultat d'un texte

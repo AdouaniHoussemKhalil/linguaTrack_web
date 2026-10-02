@@ -6,3 +6,14 @@ export const loginSchema = z.object({
 });
 
 export type LoginFormSchema = z.infer<typeof loginSchema>;
+
+/** Code reçu par email (vérification d'adresse, MFA, mot de passe oublié). */
+export const codeSchema = z.object({
+  code: z.string().trim().min(1, "Le code est requis"),
+});
+
+export type CodeFormSchema = z.infer<typeof codeSchema>;
+
+export const emailSchema = loginSchema.pick({ email: true });
+
+export type EmailFormSchema = z.infer<typeof emailSchema>;

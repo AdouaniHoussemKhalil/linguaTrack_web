@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Alert, AlertDescription, Button, Spinner } from "@quickadui/core";
 import {
   Form,
@@ -19,7 +19,9 @@ import {
   SelectValue,
 } from "@quickadui/forms";
 import { routes } from "@/app/routes/routes";
-import { useRegister } from "../hooks/UseAuth";
+import { getErrorMessage } from "@/lib/errors";
+import { GoogleButton } from "../components/GoogleButton";
+import { useCompleteSignIn, useRegister } from "../hooks/useAuth";
 import PasswordStrength from "../components/PasswordStrength";
 import {
   languageLevels,
@@ -44,23 +46,21 @@ export default function RegisterPage() {
   const password = useWatch({ control: form.control, name: "password" });
   const [error, setError] = useState<string | null>(null);
   const { mutate: registerUser, isPending } = useRegister();
+  const completeSignIn = useCompleteSignIn();
+  const navigate = useNavigate();
 
-  const onSubmit = form.handleSubmit(({ firstName, lastName, email, level, password }) => {
+  const onSubmit = form.handleSubmit((values) => {
     setError(null);
 
-    registerUser(
-      { firstName, lastName, email, level, password },
-      {
-        onSuccess: (result) => {
-          if (!result.is_success) {
-            setError(result.error || "Une erreur est survenue lors de la création du compte");
-          }
-        },
-        onError: () => {
-          setError("Une erreur est survenue lors de la création du compte");
-        },
+    registerUser(values, {
+      onSuccess: (result) => {
+        // Adresse à vérifier avant la première connexion ; sinon la session est déjà ouverte
+        if (result.emailVerificationRequired)
+          navigate(routes.verifyEmail, { state: { email: values.email, mode: result.emailVerificationMode } });
+        else completeSignIn();
       },
-    );
+      onError: (err) => setError(getErrorMessage(err, "Une erreur est survenue lors de la création du compte.")),
+    });
   });
 
   return (
@@ -226,6 +226,14 @@ export default function RegisterPage() {
           </p>
         </form>
       </Form>
+
+      {/* Compte Google : créé sans mot de passe, niveau A2 par défaut (modifiable dans Paramètres) */}
+      <GoogleButton
+        onResult={(result, email) =>
+          result.MFARequired ? navigate(routes.login, { state: { mfaEmail: email } }) : completeSignIn()
+        }
+        onError={setError}
+      />
 
       <p className="text-center text-sm text-neutral-11">
         Vous avez déjà un compte ?{" "}

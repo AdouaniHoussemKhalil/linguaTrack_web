@@ -1,6 +1,6 @@
 import React from "react";
 import type { IconType } from "react-icons";
-import { MdHistory, MdOutlineDashboard, MdOutlineEdit } from "react-icons/md";
+import { MdHistory, MdOutlineDashboard, MdOutlineEdit, MdOutlineSettings } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router";
 import {
   Sidebar as ShellSidebar,
@@ -17,10 +17,19 @@ interface NavItem {
   icon: IconType;
 }
 
-const navItems: NavItem[] = [
-  { to: routes.dashboard, label: "Tableau de bord", icon: MdOutlineDashboard },
-  { to: routes.correction, label: "Correction", icon: MdOutlineEdit },
-  { to: routes.history, label: "Historique", icon: MdHistory },
+const navGroups: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Menu",
+    items: [
+      { to: routes.dashboard, label: "Tableau de bord", icon: MdOutlineDashboard },
+      { to: routes.correction, label: "Correction", icon: MdOutlineEdit },
+      { to: routes.history, label: "Historique", icon: MdHistory },
+    ],
+  },
+  {
+    label: "Compte",
+    items: [{ to: routes.settings, label: "Paramètres", icon: MdOutlineSettings }],
+  },
 ];
 
 const Sidebar: React.FC = () => {
@@ -40,28 +49,29 @@ const Sidebar: React.FC = () => {
   return (
     <ShellSidebar aria-label="Navigation principale">
       <SidebarContent className="p-3">
-        <SidebarGroup className="gap-1">
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+        {navGroups.map(({ label: groupLabel, items }) => (
+          <SidebarGroup key={groupLabel} className="gap-1">
+            <SidebarGroupLabel>{groupLabel}</SidebarGroupLabel>
+            {items.map(({ to, label, icon: Icon }) => {
+              const isActive = location.pathname === to || location.pathname.startsWith(`${to}/`);
 
-          {navItems.map(({ to, label, icon: Icon }) => {
-            const isActive = location.pathname === to || location.pathname.startsWith(`${to}/`);
-
-            return (
-              <SidebarNavItem
-                key={to}
-                href={to}
-                title={label}
-                active={isActive}
-                className={isActive ? "font-semibold" : undefined}
-                aria-current={isActive ? "page" : undefined}
-                icon={<Icon size={20} aria-hidden className="shrink-0" />}
-                onClick={(event) => handleClick(event, to)}
-              >
-                {label}
-              </SidebarNavItem>
-            );
-          })}
-        </SidebarGroup>
+              return (
+                <SidebarNavItem
+                  key={to}
+                  href={to}
+                  title={label}
+                  active={isActive}
+                  className={isActive ? "font-semibold" : undefined}
+                  aria-current={isActive ? "page" : undefined}
+                  icon={<Icon size={20} aria-hidden className="shrink-0" />}
+                  onClick={(event) => handleClick(event, to)}
+                >
+                  {label}
+                </SidebarNavItem>
+              );
+            })}
+          </SidebarGroup>
+        ))}
       </SidebarContent>
     </ShellSidebar>
   );

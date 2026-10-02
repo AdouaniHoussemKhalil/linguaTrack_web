@@ -11,8 +11,8 @@ export const TextsService = {
     return data;
   },
 
-  getById: async (id: string, userId: string): Promise<AnalyseTextResult> => {
-    const response = await api.get(`/texts/history/${userId}/${id}`);
+  getById: async (id: string): Promise<AnalyseTextResult> => {
+    const response = await api.get(`/texts/${id}`);
     return response.data;
   },
 };

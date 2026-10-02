@@ -7,6 +7,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@quickadui/core";
 import { UserIcon } from "@quickadui/icons";
@@ -20,13 +22,21 @@ import {
 import { routes } from "@/app/routes/routes";
 import ThemeModeToggle from "./ThemeModeToggle";
 
+export interface NavbarUser {
+  name: string;
+  email: string;
+  initials: string;
+}
+
 interface NavbarProps {
   /** À activer uniquement sous un `DashboardLayout` / `SidebarProvider`. */
   showSidebarTrigger?: boolean | undefined;
   onLogout?: (() => void) | undefined;
+  /** Utilisateur connecté ; tant qu'il n'est pas chargé, l'avatar affiche une icône. */
+  user?: NavbarUser | undefined;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ showSidebarTrigger, onLogout }) => {
+const Navbar: React.FC<NavbarProps> = ({ showSidebarTrigger, onLogout, user }) => {
   const location = useLocation();
 
   const isLoginPage = location.pathname === routes.login;
@@ -58,18 +68,30 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebarTrigger, onLogout }) => {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                aria-label="Menu du compte"
+                aria-label={user ? `Menu du compte de ${user.name}` : "Menu du compte"}
                 className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-8"
               >
                 <Avatar>
-                  <AvatarFallback>
-                    <UserIcon size={18} />
+                  <AvatarFallback className="font-semibold">
+                    {user ? user.initials : <UserIcon size={18} aria-hidden />}
                   </AvatarFallback>
                 </Avatar>
               </button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="min-w-56">
+              {user && (
+                <>
+                  <DropdownMenuLabel className="flex flex-col gap-0.5">
+                    <span className="truncate text-sm font-semibold text-neutral-12">{user.name}</span>
+                    <span className="truncate text-xs font-normal text-neutral-11">{user.email}</span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+              <DropdownMenuItem asChild>
+                <Link to={routes.settings}>Paramètres</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem onSelect={onLogout}>Se déconnecter</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
