@@ -35,6 +35,21 @@ VITE_GOOGLE_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
 Autre cible pour le proxy (Docker, autre port) : variable d'environnement `API_PROXY_TARGET`.
 En production, servir le front et l'API sur le même domaine (reverse proxy avec les mêmes préfixes).
 
+### Déploiement (Render, site statique)
+
+[`render.yaml`](render.yaml) : build `npm ci && npm run build` depuis `main`, publication de `dist/`.
+
+- **Même origine que l'API** : le site relaie `/auth`, `/users`, `/texts` et `/health` vers l'API
+  (`https://linguatrack-api.onrender.com`, à adapter dans `render.yaml` si Render attribue une autre URL). C'est
+  indispensable : deux sous-domaines `onrender.com` sont deux sites différents pour le navigateur, et les cookies
+  de session (`SameSite=Lax`) n'y passeraient pas. `VITE_API_URL` reste donc vide.
+- **React Router** : toute autre adresse sert `index.html` (liens directs vers `/dashboard`, `/reset-password`…).
+- À saisir dans Render : `VITE_GOOGLE_CLIENT_ID` (lu au build : redéployer après une modification).
+- Ensuite : `CORS_ORIGINS` de l'API = URL du site ; dans le dashboard d'auth de production, URLs de l'application
+  (`https://<site>/email-verified`, `/email-verification-failed`, `/reset-password`) ; origine Google autorisée.
+
+Le `Dockerfile` et `docker-compose.yml` servent au développement (serveur Vite), pas à la production.
+
 ### Authentification
 
 Les comptes sont gérés par le service d'authentification **auth-web-app-api**, via l'API LinguaTrack qui
