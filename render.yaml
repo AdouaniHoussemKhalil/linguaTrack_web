@@ -1,0 +1,60 @@
+# Blueprint Render : front LinguaTrack en site statique (npm run build), depuis la branche main.
+#
+# Même origine que l'API : les cookies de session (httpOnly, SameSite=Lax) ne passent pas entre deux
+# sous-domaines onrender.com (deux « sites » différents pour le navigateur). Le site statique relaie donc
+# /auth, /users, /texts et /health vers l'API, comme le proxy Vite en développement.
+#
+# Les destinations ci-dessous supposent que l'API est servie à https://linguatrack-api.onrender.com :
+# si Render attribue une autre URL au service, la remplacer ici (4 lignes).
+services:
+  - type: web
+    name: linguatrack-web
+    runtime: static
+    branch: main
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      # Vide : le front appelle l'API sur sa propre origine (réécritures ci-dessous).
+      - key: VITE_API_URL
+        value: ""
+      # Client ID OAuth Google (public) ; vide : pas de bouton « Continuer avec Google ».
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
+    routes:
+      # API, relayée sous la même origine (l'ordre compte : avant le repli vers index.html).
+      - type: rewrite
+        source: /auth/*
+        destination: https://linguatrack-api.onrender.com/auth/*
+      - type: rewrite
+        source: /users/*
+        destination: https://linguatrack-api.onrender.com/users/*
+      - type: rewrite
+        source: /texts/*
+        destination: https://linguatrack-api.onrender.com/texts/*
+      - type: rewrite
+        source: /health/*
+        destination: https://linguatrack-api.onrender.com/health/*
+      # React Router (vraies URL : /dashboard, /reset-password…) : toute autre adresse sert l'application.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      # Fichiers de build nommés par leur contenu : cache long ; index.html toujours revalidé.
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
