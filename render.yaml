@@ -5,7 +5,7 @@
 # /auth, /users, /texts et /health vers l'API, comme le proxy Vite en développement.
 #
 # Les destinations ci-dessous supposent que l'API est servie à https://linguatrack-api.onrender.com :
-# si Render attribue une autre URL au service, la remplacer ici (4 lignes).
+# si Render attribue une autre URL au service, la remplacer ici (8 lignes).
 services:
   - type: web
     name: linguatrack-web
@@ -25,6 +25,20 @@ services:
         sync: false
     routes:
       # API, relayée sous la même origine (l'ordre compte : avant le repli vers index.html).
+      # Chemins seuls d'abord : « /texts/* » ne couvre pas « /texts » (liste de l'historique, GET /texts?…),
+      # qui tomberait sinon dans le repli et recevrait index.html au lieu du JSON de l'API.
+      - type: rewrite
+        source: /auth
+        destination: https://linguatrack-api.onrender.com/auth
+      - type: rewrite
+        source: /users
+        destination: https://linguatrack-api.onrender.com/users
+      - type: rewrite
+        source: /texts
+        destination: https://linguatrack-api.onrender.com/texts
+      - type: rewrite
+        source: /health
+        destination: https://linguatrack-api.onrender.com/health/
       - type: rewrite
         source: /auth/*
         destination: https://linguatrack-api.onrender.com/auth/*
